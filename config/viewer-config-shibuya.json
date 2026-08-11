@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "scenarioConfigPath": "./scenarios/shibuya.json",
+  "web3d": {
+    "root": "/third_party/hakoniwa-web3d-drone",
+    "viewerConfigName": "viewer-config-legacy.json",
+    "sceneConfigPath": "./web3d-scene-shibuya.json"
+  }
+}

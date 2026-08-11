@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "format": "compact",
+  "environments": [
+    {
+      "name": "shibuya-terrain",
+      "type": "terrain-grid",
+      "terrainGridPath": "../runtime-assets/shibuya/terrain-grid.json",
+      "material": {
+        "mode": "elevation",
+        "lowColor": "#315d45",
+        "middleColor": "#9d895f",
+        "highColor": "#e7e2d2",
+        "wireframe": false,
+        "roughness": 0.92,
+        "metalness": 0.0
+      },
+      "debug": {
+        "grid": false,
+        "axes": false
+      }
+    }
+  ],
+  "main_camera": {
+    "fov": 75,
+    "near": 0.1,
+    "far": 5000,
+    "initialMode": "follow",
+    "followDistance": 30.0,
+    "position": [-20.0, 0.0, 15.0],
+    "target": "Drone"
+  },
+  "droneTypesPath": "../third_party/hakoniwa-web3d-drone/config/drone_types-quadrotor_base.json",
+  "drones": [
+    {
+      "name": "Drone",
+      "type": "quadrotor_base",
+      "pos": [0.0, 0.0, 20.0],
+      "hpr": [0.0, 0.0, 0.0]
+    }
+  ]
+}

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hakoniwa Geo + Web3D Drone Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:,">
+
+  <!-- proj4 & Leaflet -->
+  <script src="https://cdn.jsdelivr.net/npm/proj4@2.9.2/dist/proj4.js"></script>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-rotatedmarker@0.2.0/leaflet.rotatedMarker.js"></script>
+
+  <!-- Mapray JS 0.9.6 (public CDN) -->
+  <script src="https://resource.mapray.com/mapray-js/v0.9.6/mapray.min.js"></script>
+  <script src="https://resource.mapray.com/ui/v0.9.6/maprayui.min.js"></script>
+  <link rel="stylesheet" href="https://resource.mapray.com/styles/v1/mapray.css">
+
+  <!-- three.js 用 importmap -->
+  <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #main-container {
+      display: flex;
+      height: 100%;
+    }
+
+    /* 左パネル */
+    #panel {
+      width: 300px;
+      height: 100%;
+      background-color: #f0f0f0;
+      overflow-y: auto;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    /* 右側（縦2分割＋ドラッグバー） */
+    #right-container {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #map-container {
+      height: 72%;
+      min-height: 80px;
+      position: relative;
+    }
+
+    #mapray-status { position:absolute; right:10px; top:10px; z-index:500; padding:6px 8px; background:rgba(255,255,255,.9); border:1px solid #888; border-radius:4px; font:12px sans-serif; }
+    #map, #mapray-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    #map { z-index: 1; }
+    #mapray-container { z-index: 0; visibility: hidden; }
+    #map-container.mapray-active #map { display: none; }
+    #map-container.mapray-active #mapray-container { visibility: visible; }
+
+    /* ドラッグ用バー */
+    #splitter {
+      height: 6px;
+      background: #ccc;
+      cursor: row-resize;
+      flex-shrink: 0;
+    }
+
+    #three-container {
+      height: calc(28% - 6px);
+      min-height: 80px;
+      background: #000;
+    }
+
+    #three-root {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* prop-table 周りは前のまま */
+    .prop-table {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+      border-collapse: collapse;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+    .prop-table td {
+      padding: 2px 4px;
+    }
+    .prop-table .sign {
+      width: 12px;
+      text-align: right;
+    }
+    .prop-table .value {
+      width: 70px;
+      text-align: right;
+    }
+    .prop-box {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #f9f9f9;
+      padding: 6px 8px;
+      margin-bottom: 16px;
+    }
+    .prop-box h4 {
+      margin: 0 0 6px 0;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    #collision-summary {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    #collision-list {
+      max-height: 150px;
+      overflow-y: auto;
+      font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .collision-event {
+      display: block;
+      width: 100%;
+      padding: 5px 4px;
+      border-top: 1px solid #ddd;
+      border-right: 0;
+      border-bottom: 0;
+      border-left: 0;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+    }
+    .collision-event:hover, .collision-event.selected {
+      background: #ffe4c4;
+    }
+    #selection-status, #layout-status, #collision-detail {
+      margin-top: 4px;
+      color: #444;
+      font-size: 12px;
+    }
+    .collision-note {
+      color: #555;
+      font-size: 11px;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="main-container">
+    <div id="panel">
+      <button id="connect-btn">connect</button>
+      <div id="connection-status" style="margin-top:4px;font-size:12px;color:#444;">PDU: not connected</div>
+      <div id="environment-status" style="margin-top:4px;font-size:12px;color:#444;">3D環境: not loaded</div>
+
+      <div style="margin-top: 8px;">
+        <label for="ws-uri-input"><strong>WebSocket URI</strong></label><br>
+        <input
+          id="ws-uri-input"
+          type="text"
+          style="width: 100%;"
+          value="ws://127.0.0.1:8765"
+        >
+      </div>
+
+      <div style="margin-top: 8px;">
+        <label><strong>Viewer Config</strong></label><br>
+        <input
+          id="viewer-config-name"
+          type="text"
+          style="width: 100%;"
+          readonly
+          value="viewer-config-legacy.json"
+        >
+      </div>
+
+      <div style="margin-top:8px;">
+        <label for="drone-profile-select"><strong>Drone model</strong></label><br>
+        <select id="drone-profile-select" style="width:100%;">
+          <option value="base">Base quadrotor (bundled)</option>
+          <option value="dji-local">DJI model (local GLB required)</option>
+        </select>
+      </div>
+
+      <div style="margin-top:8px;">
+        <label for="environment-mode-select"><strong>3D environment</strong></label><br>
+        <select id="environment-mode-select" style="width:100%;">
+          <option value="physics">Physics (terrain + collision boxes)</option>
+          <option value="visual">Visual (optional PLATEAU GLB)</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+
+      <div style="margin-top:8px;">
+        <label for="layout-mode-select"><strong>Layout</strong></label><br>
+        <select id="layout-mode-select" style="width:100%;">
+          <option value="operations">Operations (map priority)</option>
+          <option value="inspection">Inspection (3D priority)</option>
+          <option value="incident">Incident (balanced)</option>
+          <option value="offline">Offline (3D only)</option>
+        </select>
+        <div id="layout-status">Layout: operations</div>
+      </div>
+
+
+      <div style="margin-top:8px;">
+        <label for="drone-select"><strong>Drone</strong></label><br>
+        <select id="drone-select"></select>
+        <div id="selection-status">Selected: none</div>
+      </div>
+
+      <div style="margin-top:4px;">
+        <label>
+          <input type="checkbox" id="follow-checkbox" checked>
+          Follow selected
+        </label>
+      </div>
+
+      <div style="margin-top:4px;">
+        <label style="color:#d9534f;font-weight:bold;">
+          <input type="checkbox" id="demo-flight-checkbox">
+          デモ自動飛行 (Demo Flight)
+        </label>
+      </div>
+
+      <hr>
+
+      <h3>Origin (Lat/Lon)</h3>
+      <div class="prop-box">
+        <table class="prop-table">
+          <tr>
+            <td>Lat:</td>
+            <td><input id="origin-lat" type="number" step="0.000001" style="width:120px;"></td>
+          </tr>
+          <tr>
+            <td>Lon:</td>
+            <td><input id="origin-lon" type="number" step="0.000001" style="width:120px;"></td>
+          </tr>
+        </table>
+        <button id="apply-origin-btn">Apply</button>
+      </div>
+
+      <hr>
+
+      <h3>Drone State</h3>
+      <div class="prop-box">
+        <h4>Position (ROS, m)</h4>
+        <table class="prop-table">
+          <tr><td>x:</td><td class="sign" id="prop-x-sign"></td><td class="value" id="prop-x"></td></tr>
+          <tr><td>y:</td><td class="sign" id="prop-y-sign"></td><td class="value" id="prop-y"></td></tr>
+          <tr><td>z:</td><td class="sign" id="prop-z-sign"></td><td class="value" id="prop-z"></td></tr>
+        </table>
+      </div>
+
+      <div class="prop-box">
+        <h4>Attitude (RPY, deg)</h4>
+        <table class="prop-table">
+          <tr><td>roll:</td><td class="sign" id="prop-roll-sign"></td><td class="value" id="prop-roll"></td></tr>
+          <tr><td>pitch:</td><td class="sign" id="prop-pitch-sign"></td><td class="value" id="prop-pitch"></td></tr>
+          <tr><td>yaw:</td><td class="sign" id="prop-yaw-sign"></td><td class="value" id="prop-yaw"></td></tr>
+        </table>
+      </div>
+
+      <h3>Collision Events</h3>
+      <div class="prop-box" id="collision-panel">
+        <button id="trigger-test-collision-btn" style="width:100%;margin-bottom:8px;padding:6px;background:#d9534f;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">
+          [衝突テスト発火 (Trigger Test Collision)]
+        </button>
+        <div id="collision-summary">0件</div>
+        <div id="collision-list"></div>
+        <div id="collision-detail">選択: none</div>
+        <div class="collision-note">
+          * 強度は衝突直前の位置差から求めた速度ベースの指標です。
+        </div>
+      </div>
+    </div>
+
+    <div id="right-container">
+      <div id="map-container">
+        <div id="mapray-status"><span class="mapray-status">Mapray loading...</span></div>
+        <div id="map"></div>
+        <div id="mapray-container"></div>
+      </div>
+      <div id="splitter"></div>
+      <div id="three-container">
+        <div id="three-root"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__hakoniwaUiReady = false;
+    window.addEventListener('error', (event) => {
+      if (event.message === 'Script error.') return;
+      const target = document.querySelector('.mapray-status');
+      if (target && event.message) target.textContent = `JavaScript error: ${event.message}`;
+    });
+    window.addEventListener('unhandledrejection', (event) => {
+      const target = document.querySelector('.mapray-status');
+      const reason = event.reason?.message || String(event.reason || '');
+      if (target && reason && !reason.includes('Script error')) target.textContent = `JavaScript error: ${reason}`;
+    });
+    document.getElementById('connect-btn').addEventListener('click', () => {
+      if (window.__hakoniwaUiReady) return;
+      const target = document.getElementById('connection-status');
+      if (target) target.textContent = 'PDU error: ui.jsの初期化が完了していません';
+    });
+  </script>
+
+  <!-- Map viewer 用: import failure is reported in the visible diagnostics. -->
+  <script type="module">
+    const pduStatus = document.getElementById('connection-status');
+    if (pduStatus) pduStatus.textContent = 'PDU: ui.jsを読み込み中...';
+    const uiModuleUrl = new URL('./src/ui.js', window.location.href);
+    uiModuleUrl.searchParams.set('v', 'oom-20260811-1');
+    try {
+      await import(uiModuleUrl.href);
+    } catch (error) {
+      console.error('[HakoniwaGeoViewer] ui.js import failed:', error);
+      const detail = error?.message || String(error);
+      if (pduStatus) pduStatus.textContent = `PDU error: ui.js import failed: ${detail}`;
+      const maprayStatus = document.querySelector('.mapray-status');
+      if (maprayStatus) maprayStatus.textContent = `JavaScript error: ${detail}`;
+    }
+  </script>
+</body>
+</html>

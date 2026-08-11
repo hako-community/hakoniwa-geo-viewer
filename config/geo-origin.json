@@ -1,0 +1,12 @@
+{
+  "origin": {
+    "latitude": 35.6625,
+    "longitude": 139.70625,
+    "altitude": 0.0
+  },
+  "horizontal_crs": "EPSG:6677",
+  "local_frame": "ENU",
+  "vertical_datum": "orthometric_height",
+  "mujoco_axis": {"x": "north", "y": "-east", "z": "up"},
+  "z_offset": 15.07
+}

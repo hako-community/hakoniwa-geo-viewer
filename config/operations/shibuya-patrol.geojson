@@ -1,0 +1,48 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shibuya-patrol-route-1",
+        "name": "Shibuya Station Patrol Route",
+        "type": "planned_route",
+        "minAltitudeM": 20.0,
+        "maxDeviationM": 15.0
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [139.7016357, 35.6580339, 45.0],
+          [139.7020000, 35.6585000, 50.0],
+          [139.7030000, 35.6590000, 55.0],
+          [139.7025000, 35.6595000, 50.0],
+          [139.7015000, 35.6590000, 45.0],
+          [139.7016357, 35.6580339, 45.0]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shibuya-geofence-primary",
+        "name": "Shibuya Operational Boundary",
+        "type": "geofence",
+        "minAltitudeM": 10.0,
+        "maxAltitudeM": 120.0
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [139.6990000, 35.6565000, 0.0],
+            [139.7050000, 35.6565000, 0.0],
+            [139.7050000, 35.6615000, 0.0],
+            [139.6990000, 35.6615000, 0.0],
+            [139.6990000, 35.6565000, 0.0]
+          ]
+        ]
+      }
+    }
+  ]
+}

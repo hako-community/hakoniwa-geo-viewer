@@ -1,0 +1,22 @@
+{
+  "sdkVersion": "0.9.6",
+  "buildingDatasetIds": [
+    "6329541064654848",
+    "4785831235551232",
+    "5126075927494656"
+  ],
+  "demDatasetId": "5129466653179904",
+  "terrainGridUrl": "/runtime-assets/shibuya/terrain-grid.json",
+  "camera": {
+    "latitude": 35.6625,
+    "longitude": 139.70625,
+    "height": 700.0,
+    "lookAtHeight": 30.27,
+    "horizontalDistanceM": 450.0,
+    "minimumHorizontalDistanceM": 120.0
+  },
+  "collision": {
+    "normalLengthMeters": 5.0,
+    "maxMarkers": 100
+  }
+}

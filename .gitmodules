@@ -1,0 +1,3 @@
+[submodule "third_party/hakoniwa-web3d-drone"]
+	path = third_party/hakoniwa-web3d-drone
+	url = https://github.com/hako-community/hakoniwa-web3d-drone.git

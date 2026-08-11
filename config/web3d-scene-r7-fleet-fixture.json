@@ -1,0 +1,69 @@
+{
+  "version": "1.0",
+  "format": "compact",
+  "environmentMode": "physics",
+  "environments": [
+    {
+      "name": "shibuya-terrain",
+      "type": "terrain-grid",
+      "modes": ["physics", "visual"],
+      "terrainGridPath": "../runtime-assets/shibuya/terrain-grid.json",
+      "material": {
+        "mode": "elevation",
+        "lowColor": "#315d45",
+        "middleColor": "#9d895f",
+        "highColor": "#e7e2d2",
+        "wireframe": false,
+        "roughness": 0.92,
+        "metalness": 0.0
+      },
+      "debug": { "grid": true, "gridDivisions": 24, "axes": true, "axesSizeM": 25.0 }
+    },
+    {
+      "name": "shibuya-collision-buildings",
+      "type": "model",
+      "kind": "mjcf",
+      "modes": ["physics"],
+      "model": "../runtime-assets/shibuya/buildings.xml",
+      "material": {
+        "mode": "collision-debug",
+        "color": "#4b9bd6",
+        "opacity": 0.34,
+        "depthWrite": false
+      }
+    }
+  ],
+  "main_camera": {
+    "fov": 75,
+    "near": 0.1,
+    "far": 5000,
+    "initialMode": "follow",
+    "followDistance": 55.0,
+    "followLerpPos": 8.0,
+    "followLerpTarget": 10.0,
+    "followToggleKey": "c",
+    "position": [-35.0, 0.0, 28.0],
+    "target": "Drone-A"
+  },
+  "defaultDroneProfile": "base",
+  "droneProfiles": {
+    "base": {
+      "label": "Base quadrotor (bundled)",
+      "droneTypesPath": "../third_party/hakoniwa-web3d-drone/config/drone_types-quadrotor_base.json",
+      "droneType": "quadrotor_base"
+    }
+  },
+  "droneTypesPath": "../third_party/hakoniwa-web3d-drone/config/drone_types-quadrotor_base.json",
+  "drones": [
+    { "name": "Drone-A", "type": "quadrotor_base", "pos": [0.0, 0.0, 24.0], "hpr": [0.0, 0.0, 0.0] },
+    { "name": "Drone-B", "type": "quadrotor_base", "pos": [35.0, 25.0, 32.0], "hpr": [0.0, 0.0, 45.0] },
+    { "name": "Drone-C", "type": "quadrotor_base", "pos": [-42.0, 18.0, 28.0], "hpr": [0.0, 0.0, -35.0] },
+    { "name": "Drone-D", "type": "quadrotor_base", "pos": [-30.0, -30.0, 26.0], "hpr": [0.0, 0.0, 90.0] },
+    { "name": "Drone-E", "type": "quadrotor_base", "pos": [45.0, -20.0, 30.0], "hpr": [0.0, 0.0, -90.0] },
+    { "name": "Drone-F", "type": "quadrotor_base", "pos": [60.0, 40.0, 35.0], "hpr": [0.0, 0.0, 180.0] },
+    { "name": "Drone-G", "type": "quadrotor_base", "pos": [-55.0, 50.0, 29.0], "hpr": [0.0, 0.0, 120.0] },
+    { "name": "Drone-H", "type": "quadrotor_base", "pos": [20.0, -60.0, 31.0], "hpr": [0.0, 0.0, -60.0] },
+    { "name": "Drone-I", "type": "quadrotor_base", "pos": [-70.0, -40.0, 27.0], "hpr": [0.0, 0.0, 200.0] },
+    { "name": "Drone-J", "type": "quadrotor_base", "pos": [80.0, -10.0, 34.0], "hpr": [0.0, 0.0, -120.0] }
+  ]
+}
