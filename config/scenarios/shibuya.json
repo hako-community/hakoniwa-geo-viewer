@@ -15,7 +15,27 @@
     "mapray": "../mapray.json",
     "runtimeManifest": "../../runtime-assets/shibuya/manifest.json",
     "terrainGrid": "../../runtime-assets/shibuya/terrain-grid.json",
-    "buildings": "../../runtime-assets/shibuya/buildings.xml"
+    "wideTerrainGrid": "../../runtime-assets/shibuya/terrain-grid-wide-5km.json",
+    "buildings": "../../runtime-assets/shibuya/buildings.xml",
+    "buildingsLod1": "../../runtime-assets/shibuya/buildings-lod1.json",
+    "operationsLayer": "../operations/shibuya-wide-area-5km.geojson"
+  },
+  "coverage": {
+    "wideArea": {
+      "label": "5km overview",
+      "widthM": 5000,
+      "heightM": 5000,
+      "dataStatus": "ready",
+      "display": "standard map + DEM + public PLATEAU B3D"
+    },
+    "localDetail": {
+      "label": "600m detail",
+      "widthM": 600,
+      "heightM": 600,
+      "selectionHalfExtentM": 320,
+      "dataStatus": "ready",
+      "display": "PLATEAU LOD1 + textured B3D"
+    }
   },
   "web3d": {
     "root": "/third_party/hakoniwa-web3d-drone",

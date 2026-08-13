@@ -31,20 +31,32 @@ REQUIRED_FILES = (
     ROOT / "src" / "client" / "src" / "terrain_height.mjs",
     ROOT / "src" / "client" / "src" / "flight_state_store.mjs",
     ROOT / "src" / "client" / "src" / "layout_modes.mjs",
+    ROOT / "src" / "client" / "src" / "operations_layer.mjs",
+    ROOT / "src" / "client" / "src" / "performance_monitor.mjs",
+    ROOT / "src" / "client" / "src" / "scenario_runtime.mjs",
+    ROOT / "src" / "client" / "src" / "wide_area_scenario.mjs",
     ROOT / "config" / "geo-origin.json",
     ROOT / "config" / "mapray.json",
     ROOT / "config" / "viewer-config-shibuya.json",
     ROOT / "config" / "scenarios" / "shibuya.json",
+    ROOT / "config" / "operations" / "shibuya-wide-area-5km.geojson",
     ROOT / "config" / "web3d-scene-shibuya.json",
     ROOT / "config" / "web3d-scene-shibuya-terrain-only.json",
     ROOT / "config" / "web3d-scene-r4-selection-fixture.json",
     ROOT / "runtime-assets" / "shibuya" / "manifest.json",
     ROOT / "runtime-assets" / "shibuya" / "terrain-grid.json",
+    ROOT / "runtime-assets" / "shibuya" / "terrain-grid-wide-5km.json",
     ROOT / "runtime-assets" / "shibuya" / "buildings.xml",
+    ROOT / "runtime-assets" / "shibuya" / "buildings-lod1.json",
     ROOT / "images" / "drone.svg",
     THREEJS_ROOT / "tools" / "hako.py",
     THREEJS_ROOT / "src" / "public" / "drone_viewer.js",
+    THREEJS_ROOT / "src" / "drone_operational_visualization.js",
     THREEJS_ROOT / "config" / "viewer-config-legacy.json",
+    THREEJS_ROOT / "config" / "drone_types-origin-01.json",
+    THREEJS_ROOT / "assets" / "models" / "origin-01.glb",
+    THREEJS_ROOT / "assets" / "models" / "propeller_origin_01.glb",
+    THREEJS_ROOT / "assets" / "models" / "origin-01-LICENSE.txt",
 )
 
 
@@ -152,7 +164,15 @@ def test() -> int:
 
     node = shutil.which("node")
     if node:
-        for script in ("test_collision_events.mjs", "test_flight_state_store.mjs"):
+        for script in (
+            "test_collision_events.mjs",
+            "test_flight_state_store.mjs",
+            "test_operations_layer.mjs",
+            "test_operations_evaluation.mjs",
+            "test_performance_monitor.mjs",
+            "test_scenario_runtime.mjs",
+            "test_wide_area_scenario.mjs",
+        ):
             logic_tests = subprocess.run(
                 [node, str(ROOT / "tools" / script)],
                 cwd=ROOT,
@@ -202,20 +222,33 @@ def smoke() -> int:
         ("/src/client/src/terrain_height.mjs", "TerrainHeightSampler"),
         ("/src/client/src/flight_state_store.mjs", "FlightStateStore"),
         ("/src/client/src/layout_modes.mjs", "LAYOUT_MODES"),
+        ("/src/client/src/operations_layer.mjs", "normalizeOperationsData"),
+        ("/src/client/src/operations_evaluation.mjs", "PhaseDEvaluationRecorder"),
+        ("/src/client/src/performance_monitor.mjs", "measurementKind"),
+        ("/src/client/src/scenario_runtime.mjs", "SUPPORTED_FLEET_SIZES"),
+        ("/src/client/src/wide_area_scenario.mjs", "createWideAreaScenario"),
         ("/src/client/src/scenario_config.mjs", "loadViewerScenarioConfig"),
         ("/config/viewer-config-shibuya.json", "scenarioConfigPath"),
         ("/config/scenarios/shibuya.json", "coordinateContract"),
+        ("/config/operations/shibuya-wide-area-5km.geojson", "shibuya-wide-area-5km"),
+        ("/config/evaluation/phase-d-evaluation.json", "phase-d-mapray-leaflet"),
         ("/config/web3d-scene-shibuya.json", "terrain-grid"),
         ("/config/web3d-scene-shibuya-terrain-only.json", "terrain-grid"),
         ("/config/web3d-scene-r4-selection-fixture.json", "Drone-C"),
         ("/config/mapray.json", "5129466653179904"),
         ("/runtime-assets/shibuya/manifest.json", "maprayAbsoluteHeight"),
         ("/runtime-assets/shibuya/terrain-grid.json", "modelHeightsM"),
+        ("/runtime-assets/shibuya/terrain-grid-wide-5km.json", "modelHeightsM"),
         ("/runtime-assets/shibuya/buildings.xml", "body_bldg_"),
+        ("/runtime-assets/shibuya/buildings-lod1.json", '"polygons"'),
         ("/images/drone.svg", "<svg"),
         (
             "/third_party/hakoniwa-web3d-drone/src/public/drone_viewer.js",
             "createDroneViewer",
+        ),
+        (
+            "/third_party/hakoniwa-web3d-drone/src/lod1_city_environment.js",
+            "buildLod1CityEnvironment",
         ),
         (
             "/third_party/hakoniwa-web3d-drone/config/viewer-config-legacy.json",

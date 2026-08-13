@@ -6,7 +6,9 @@ const REQUIRED_PATHS = Object.freeze([
   'runtimeManifest',
   'terrainGrid',
   'buildings',
+  'buildingsLod1',
 ]);
+const OPTIONAL_PATHS = Object.freeze(['operationsLayer']);
 
 function requireNonEmptyString(value, label) {
   if (typeof value !== 'string' || value.trim().length === 0) {
@@ -22,6 +24,14 @@ function resolveSameOriginUrl(baseUrl, pathValue, label) {
     throw new Error(`[ScenarioConfig] ${label} must remain on the viewer origin`);
   }
   return resolved.toString();
+}
+
+function requirePositiveNumber(value, label) {
+  const number = Number(value);
+  if (!Number.isFinite(number) || number <= 0) {
+    throw new Error(`[ScenarioConfig] ${label} must be a positive number`);
+  }
+  return number;
 }
 
 async function loadJson(url, label) {
@@ -47,7 +57,7 @@ export function validateRuntimeAssetManifest(data, scenarioId) {
     throw new Error('[ScenarioConfig] runtime asset zBaselineM must be finite');
   }
   const paths = new Set((data.files || []).map((item) => item?.path));
-  for (const required of ['terrain-grid.json', 'buildings.xml']) {
+  for (const required of ['terrain-grid.json', 'buildings.xml', 'buildings-lod1.json']) {
     if (!paths.has(required)) {
       throw new Error(`[ScenarioConfig] runtime asset manifest is missing ${required}`);
     }
@@ -71,6 +81,22 @@ export function validateScenarioConfig(data) {
   }
   for (const name of REQUIRED_PATHS) {
     requireNonEmptyString(data.paths?.[name], `paths.${name}`);
+  }
+  if (data.coverage) {
+    for (const name of ['wideArea', 'localDetail']) {
+      const coverage = data.coverage[name];
+      requireNonEmptyString(coverage?.label, `coverage.${name}.label`);
+      requirePositiveNumber(coverage?.widthM, `coverage.${name}.widthM`);
+      requirePositiveNumber(coverage?.heightM, `coverage.${name}.heightM`);
+      requireNonEmptyString(coverage?.dataStatus, `coverage.${name}.dataStatus`);
+      requireNonEmptyString(coverage?.display, `coverage.${name}.display`);
+    }
+    if (data.coverage.localDetail.selectionHalfExtentM != null) {
+      requirePositiveNumber(
+        data.coverage.localDetail.selectionHalfExtentM,
+        'coverage.localDetail.selectionHalfExtentM',
+      );
+    }
   }
   requireNonEmptyString(data.web3d?.root, 'web3d.root');
   requireNonEmptyString(data.web3d?.viewerConfigName, 'web3d.viewerConfigName');
@@ -98,6 +124,11 @@ export async function loadViewerScenarioConfig(
       resolveSameOriginUrl(scenarioUrl, scenario.paths[name], `paths.${name}`),
     ]),
   );
+  for (const name of OPTIONAL_PATHS) {
+    if (scenario.paths?.[name]) {
+      urls[name] = resolveSameOriginUrl(scenarioUrl, scenario.paths[name], `paths.${name}`);
+    }
+  }
   const runtimeManifest = validateRuntimeAssetManifest(
     await loadJson(urls.runtimeManifest, 'runtime asset manifest'),
     scenario.id,

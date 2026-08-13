@@ -21,6 +21,10 @@ class PhaseR1ContractTest(unittest.TestCase):
         self.assertTrue(scenario_path.is_relative_to(ROOT))
         scenario = load_json(scenario_path)
         self.assertEqual("shibuya", scenario["id"])
+        self.assertEqual(5000, scenario["coverage"]["wideArea"]["widthM"])
+        self.assertEqual(5000, scenario["coverage"]["wideArea"]["heightM"])
+        self.assertEqual("ready", scenario["coverage"]["wideArea"]["dataStatus"])
+        self.assertEqual("ready", scenario["coverage"]["localDetail"]["dataStatus"])
         for name, relative in scenario["paths"].items():
             with self.subTest(path=name):
                 target = (scenario_path.parent / relative).resolve()

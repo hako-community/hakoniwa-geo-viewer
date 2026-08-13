@@ -26,7 +26,10 @@
   {
     "imports": {
       "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+      "three/examples/jsm/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+      "3d-tiles-renderer": "https://unpkg.com/3d-tiles-renderer@0.3.35/src/three/TilesRenderer.js",
+      "3d-tiles-renderer/gltf-cesium-rtc": "https://unpkg.com/3d-tiles-renderer@0.3.35/src/three/loaders/gltf/GLTFCesiumRTCExtension.js"
     }
   }
   </script>
@@ -52,7 +55,10 @@
       overflow-y: auto;
       padding: 10px;
       box-sizing: border-box;
+      font-size: 13px;
     }
+    #panel button, #panel input, #panel select, #panel textarea { font-size: 12px; }
+    #panel h3 { font-size: 15px; margin: 12px 0 7px; }
 
     /* 右側（縦2分割＋ドラッグバー） */
     #right-container {
@@ -90,15 +96,54 @@
     }
 
     #three-container {
+      position: relative;
       height: calc(28% - 6px);
       min-height: 80px;
-      background: #000;
+      background: #a9c9df;
     }
 
     #three-root {
       width: 100%;
       height: 100%;
     }
+
+    #three-local-status {
+      position: absolute;
+      z-index: 3;
+      top: 10px;
+      left: 12px;
+      padding: 5px 9px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 4px;
+      background: rgba(17, 34, 47, 0.76);
+      color: #f7fbff;
+      font: 600 11px/1.25 system-ui, sans-serif;
+      letter-spacing: 0.04em;
+      pointer-events: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+    }
+
+    #three-local-status[data-coverage="outside"] {
+      border-color: rgba(255, 194, 92, 0.9);
+      background: rgba(86, 53, 10, 0.84);
+      color: #fff2d6;
+    }
+
+    #three-drone-legend {
+      position: absolute;
+      z-index: 3;
+      right: 12px;
+      bottom: 9px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: rgba(3, 12, 20, 0.72);
+      color: #f7fbff;
+      font: 600 11px/1.25 system-ui, sans-serif;
+      pointer-events: none;
+    }
+
+    #three-drone-legend .fleet { color: #22d3ee; }
+    #three-drone-legend .selected { color: #ffd23f; }
 
     /* prop-table 周りは前のまま */
     .prop-table {
@@ -160,20 +205,108 @@
       color: #444;
       font-size: 12px;
     }
+    #scenario-mode-status {
+      display: inline-block;
+      margin: 0 0 8px;
+      padding: 4px 7px;
+      border: 1px solid #5f6b76;
+      border-radius: 4px;
+      background: #eef2f5;
+      color: #263238;
+      font: 700 11px sans-serif;
+      letter-spacing: .03em;
+    }
+    #benchmark-status {
+      margin-top: 5px;
+      color: #334155;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
     .collision-note {
       color: #555;
       font-size: 11px;
       margin-top: 6px;
     }
+    #phase-d-evaluation-panel[hidden] { display: none; }
+    #phase-d-evaluation-panel label { display: block; margin-top: 5px; font-size: 11px; }
+    #phase-d-evaluation-panel input,
+    #phase-d-evaluation-panel select,
+    #phase-d-evaluation-panel textarea { width: 100%; box-sizing: border-box; }
+    #phase-d-evaluation-panel textarea { min-height: 38px; resize: vertical; }
+    #phase-d-evaluation-panel .evaluation-actions { display: flex; gap: 4px; margin-top: 6px; }
+    #phase-d-evaluation-panel .evaluation-answer-fields[hidden] { display: none; }
+    body.phase-d-evaluation #trigger-test-collision-btn,
+    body.phase-d-evaluation #demo-flight-checkbox { pointer-events: none; opacity: .45; }
   </style>
 </head>
 
 <body>
   <div id="main-container">
     <div id="panel">
+      <div id="scenario-mode-status">MODE / fleet / seed</div><br>
+      <div class="prop-box" id="phase-d-evaluation-panel" hidden>
+        <strong>Phase D A/B evaluation</strong>
+        <div id="phase-d-evaluation-trial" style="margin-top:4px;font-size:11px;">loading...</div>
+        <label>Evaluator ID
+          <input id="phase-d-participant-id" type="text" autocomplete="off" placeholder="P01">
+        </label>
+        <div class="evaluation-actions">
+          <button id="phase-d-start-btn" type="button">start trial</button>
+          <button id="phase-d-finish-btn" type="button" disabled>finish</button>
+        </div>
+        <div id="phase-d-evaluation-status" style="margin-top:5px;font-size:11px;">not started</div>
+        <div class="evaluation-answer-fields" id="phase-d-answer-fields" hidden>
+          <label>異常機ID
+            <select id="phase-d-answer-drone"></select>
+          </label>
+          <label>インシデントID
+            <select id="phase-d-answer-incident"></select>
+          </label>
+          <label>異常種別
+            <select id="phase-d-answer-type"></select>
+          </label>
+          <label>異常地点
+            <select id="phase-d-answer-location"></select>
+          </label>
+          <label>迷った回数
+            <input id="phase-d-hesitations" type="number" min="0" max="99" value="0">
+          </label>
+          <label>確信度 (1–5)
+            <input id="phase-d-confidence" type="number" min="1" max="5" value="3">
+          </label>
+          <label>判断に役立った情報
+            <textarea id="phase-d-useful-information"></textarea>
+          </label>
+          <label>不要だった表示
+            <textarea id="phase-d-unnecessary-display"></textarea>
+          </label>
+        </div>
+        <div class="evaluation-actions">
+          <button id="phase-d-download-csv" type="button" disabled>CSV</button>
+          <button id="phase-d-download-json" type="button" disabled>JSON</button>
+        </div>
+      </div>
       <button id="connect-btn">connect</button>
       <div id="connection-status" style="margin-top:4px;font-size:12px;color:#444;">PDU: not connected</div>
       <div id="environment-status" style="margin-top:4px;font-size:12px;color:#444;">3D環境: not loaded</div>
+
+      <div class="prop-box" style="margin-top:8px;">
+        <strong>Browser benchmark</strong>
+        <div style="display:flex;gap:4px;margin-top:5px;">
+          <label style="flex:1;font-size:11px;">Warmup(s)
+            <input id="benchmark-warmup-sec" type="number" min="0" max="600" style="width:100%;box-sizing:border-box;">
+          </label>
+          <label style="flex:1;font-size:11px;">Measure(s)
+            <input id="benchmark-duration-sec" type="number" min="10" max="3600" style="width:100%;box-sizing:border-box;">
+          </label>
+        </div>
+        <div style="display:flex;gap:4px;margin-top:5px;">
+          <button id="benchmark-start-btn" type="button">start</button>
+          <button id="benchmark-stop-btn" type="button" disabled>stop</button>
+          <button id="benchmark-download-btn" type="button" disabled>JSON</button>
+        </div>
+        <div id="benchmark-status">not started</div>
+      </div>
 
       <div style="margin-top: 8px;">
         <label for="ws-uri-input"><strong>WebSocket URI</strong></label><br>
@@ -207,8 +340,8 @@
       <div style="margin-top:8px;">
         <label for="environment-mode-select"><strong>3D environment</strong></label><br>
         <select id="environment-mode-select" style="width:100%;">
-          <option value="physics">Physics (terrain + collision boxes)</option>
-          <option value="visual">Visual (optional PLATEAU GLB)</option>
+          <option value="physics">Physics + PLATEAU LOD1</option>
+          <option value="visual">Visual (PLATEAU LOD1)</option>
           <option value="none">None</option>
         </select>
       </div>
@@ -243,6 +376,18 @@
           <input type="checkbox" id="demo-flight-checkbox">
           デモ自動飛行 (Demo Flight)
         </label>
+      </div>
+
+      <div class="prop-box" style="margin-top:8px;margin-bottom:8px;">
+        <strong>Wide-area camera</strong>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;">
+          <button id="focus-wide-area-btn" type="button">5km overview</button>
+          <button id="focus-incident-btn" type="button">Incident</button>
+          <button id="focus-local-area-btn" type="button">600m detail</button>
+        </div>
+        <div id="wide-area-status" style="margin-top:5px;color:#444;font-size:11px;">
+            5km: standard map/DEM / public PLATEAU B3D: ready
+        </div>
       </div>
 
       <hr>
@@ -305,6 +450,8 @@
       </div>
       <div id="splitter"></div>
       <div id="three-container">
+        <div id="three-local-status" data-coverage="overview" title="LOCAL 600m / PLATEAU LOD1 + MuJoCoへ切替可能">WIDE 5km / PLATEAU LOD1 STREAMING</div>
+        <div id="three-drone-legend"><span class="fleet">⊕</span> fleet / <span class="selected">⊕━</span> selected + trail</div>
         <div id="three-root"></div>
       </div>
     </div>
@@ -334,7 +481,7 @@
     const pduStatus = document.getElementById('connection-status');
     if (pduStatus) pduStatus.textContent = 'PDU: ui.jsを読み込み中...';
     const uiModuleUrl = new URL('./src/ui.js', window.location.href);
-    uiModuleUrl.searchParams.set('v', 'oom-20260811-1');
+    uiModuleUrl.searchParams.set('v', 'phase-e-20260813-13');
     try {
       await import(uiModuleUrl.href);
     } catch (error) {

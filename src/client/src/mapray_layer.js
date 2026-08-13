@@ -30,6 +30,17 @@ function safeSetEntityPosition(entity, position) {
   }
 }
 
+function hexColorToUnitRgb(value, fallback = [0.0, 0.75, 1.0]) {
+  const match = /^#([0-9a-f]{6})$/i.exec(String(value || ''));
+  if (!match) return fallback;
+  const packed = Number.parseInt(match[1], 16);
+  return [
+    ((packed >> 16) & 0xff) / 255,
+    ((packed >> 8) & 0xff) / 255,
+    (packed & 0xff) / 255,
+  ];
+}
+
 function computePathLengths(points) {
   const numPoints = Math.floor(points.length / 3);
   const lengths = new Float64Array(numPoints);
@@ -107,6 +118,7 @@ export class MaprayLayer {
     this.incidentMetadata = new Map();
     this.opsPolylineEntities = [];
     this.opsPolygonEntities = [];
+    this.opsPointEntities = [];
     this.selectedDroneId = null;
     this.selectedIncidentId = null;
     this.selectionHandler = null;
@@ -251,6 +263,34 @@ export class MaprayLayer {
     };
   }
 
+  getDiagnostics() {
+    let trajectoryPointCount = 0;
+    let maximumTrajectoryLength = 0;
+    for (const history of this.droneHistories.values()) {
+      const length = Array.isArray(history) ? history.length : 0;
+      trajectoryPointCount += length;
+      maximumTrajectoryLength = Math.max(maximumTrajectoryLength, length);
+    }
+    return {
+      ...this.getSelectionDiagnostics(),
+      entityCounts: {
+        drones: this.droneEntities.size,
+        trajectories: this.trajectoryEntities.size,
+        incidents: this.collisionEntities.size,
+        operationsRoutes: this.opsPolylineEntities.length,
+        operationsAreas: this.opsPolygonEntities.length,
+        operationsPoints: this.opsPointEntities.length,
+      },
+      trajectoryPointCount,
+      maximumTrajectoryLength,
+      limits: {
+        maxTrajectoryPointsPerDrone: this.maxTrajectoryPoints,
+        trajectorySampleIntervalMs: this.trajectorySampleIntervalMs,
+        maxCollisionMarkers: this.maxCollisionMarkers,
+      },
+    };
+  }
+
   async initialize() {
     if (!window.mapray || !window.maprayui) {
       throw new Error('Mapray JS library is not loaded');
@@ -298,26 +338,76 @@ export class MaprayLayer {
     const buildingDatasetIds = (Array.isArray(rawDatasetIds) ? rawDatasetIds : [])
       .map((item) => String(item || '').trim())
       .filter((id) => id.length > 0);
+    const publicBuildingTilePrefixes = (Array.isArray(this.config.publicBuildingTilePrefixes)
+      ? this.config.publicBuildingTilePrefixes
+      : [])
+      .map((item) => String(item || '').trim())
+      .filter((url) => /^https:\/\//.test(url));
+    const buildingSourceMode = [
+      'public-wide',
+      'private-local',
+      'hybrid',
+      'none',
+    ].includes(this.config.buildingSourceMode)
+      ? this.config.buildingSourceMode
+      : 'private-local';
 
     const StandardB3dProvider = window.mapray.StandardB3dProvider;
     const b3dCollection = this.viewer.viewer?.b3d_collection
       || this.viewer.b3d_collection;
-    const loadBuildings = initMode === 'full' && this.apiKey && this.apiKey.length > 20;
-    if (loadBuildings && buildingDatasetIds.length > 0) {
+    const loadBuildings = initMode === 'full';
+    if (loadBuildings && buildingSourceMode !== 'none') {
       if (!StandardB3dProvider || typeof b3dCollection?.createScene !== 'function') {
         console.warn('[MaprayLayer] Mapray v0.9.6 B3D API is unavailable');
       } else {
+        if (['public-wide', 'hybrid'].includes(buildingSourceMode)) {
+          for (let index = 0; index < publicBuildingTilePrefixes.length; index += 1) {
+            const prefix = publicBuildingTilePrefixes[index];
+            if (this.statusElem) {
+              this.statusElem.textContent =
+                `Public PLATEAU B3D ${index + 1}/${publicBuildingTilePrefixes.length} 読み込み中...`;
+            }
+            try {
+              const provider = new StandardB3dProvider(prefix, '.bin');
+              this.buildingScenes.push(b3dCollection.createScene(provider));
+            } catch (err) {
+              console.warn(`[MaprayLayer] public B3D load warning (${prefix}):`, err);
+            }
+          }
+          const attributionController = this.viewer.viewer?.attribution_controller
+            || this.viewer.attribution_controller;
+          for (const attribution of this.config.buildingTileAttributions || []) {
+            let attributionHtml = attribution;
+            if (attribution && typeof attribution === 'object') {
+              const anchor = document.createElement('a');
+              anchor.textContent = String(attribution.display || attribution.link || 'Data source');
+              anchor.href = String(attribution.link || '#');
+              anchor.target = '_blank';
+              anchor.rel = 'noopener noreferrer';
+              attributionHtml = anchor.outerHTML;
+            }
+            if (typeof attributionHtml === 'string' && attributionHtml.length > 0) {
+              attributionController?.addAttribution?.(attributionHtml);
+            }
+          }
+        }
         const datasetApiBase = String(
           this.config.buildingDatasetApiBase
             || 'https://api.mapray.com/b3ddatasets/v2/',
         );
-        for (let index = 0; index < buildingDatasetIds.length; index += 1) {
-          const datasetId = buildingDatasetIds[index];
+        const privateIds = ['private-local', 'hybrid'].includes(buildingSourceMode)
+          ? buildingDatasetIds
+          : [];
+        for (let index = 0; index < privateIds.length; index += 1) {
+          const datasetId = privateIds[index];
           if (this.statusElem) {
             this.statusElem.textContent =
-              `Building Dataset ${index + 1}/${buildingDatasetIds.length} (${datasetId}) 読み込み中...`;
+              `Building Dataset ${index + 1}/${privateIds.length} (${datasetId}) 読み込み中...`;
           }
           try {
+            if (!this.apiKey || this.apiKey.length <= 20) {
+              throw new Error('Mapray API key is required for private B3D datasets');
+            }
             const datasetResponse = await fetch(
               `${datasetApiBase}${encodeURIComponent(datasetId)}`,
               { headers: { 'X-Api-Key': this.apiKey } },
@@ -401,14 +491,26 @@ export class MaprayLayer {
   loadOperationsData(geojsonData) {
     if (!this.ready || !geojsonData || !Array.isArray(geojsonData.features)) return;
     const scene = this.viewer.viewer?.scene || this.viewer.scene;
-    const OperationsLayerModel = window.mapray.OperationsLayerModel || null;
     const LineEntityClass = window.mapray.MarkerLineEntity || window.mapray.PathEntity;
+
+    for (const entity of [
+      ...this.opsPolylineEntities,
+      ...this.opsPolygonEntities,
+      ...this.opsPointEntities,
+    ]) {
+      try { scene.removeEntity(entity); } catch (error) {
+        console.warn('[MaprayLayer] operations entity cleanup warning:', error);
+      }
+    }
+    this.opsPolylineEntities = [];
+    this.opsPolygonEntities = [];
+    this.opsPointEntities = [];
 
     for (const feature of geojsonData.features) {
       if (feature.properties?.type === 'planned_route' && feature.geometry?.type === 'LineString') {
         const pathEntity = new LineEntityClass(scene);
         pathEntity.altitude_mode = window.mapray.AltitudeMode.ABSOLUTE;
-        pathEntity.setColor?.([0.0, 0.75, 1.0]);
+        pathEntity.setColor?.(hexColorToUnitRgb(feature.properties?.color));
         pathEntity.setLineWidth?.(4);
 
         const points = [];
@@ -419,8 +521,97 @@ export class MaprayLayer {
         safeSetPathEntityPoints(pathEntity, points);
         scene.addEntity(pathEntity);
         this.opsPolylineEntities.push(pathEntity);
+      } else if (
+        (feature.properties?.type === 'geofence' || feature.properties?.type === 'local_analysis_area')
+        && feature.geometry?.type === 'Polygon'
+        && window.mapray.PolygonEntity
+      ) {
+        const boundary = feature.geometry.coordinates?.[0] || [];
+        if (boundary.length < 3) continue;
+        const polygon = new window.mapray.PolygonEntity(scene);
+        polygon.altitude_mode = window.mapray.AltitudeMode.CLAMP;
+        const isExclusion = feature.properties?.rule === 'exclusion';
+        const isLocal = feature.properties?.type === 'local_analysis_area';
+        const color = isExclusion ? [1.0, 0.12, 0.08] : (isLocal ? [1.0, 0.75, 0.0] : [0.0, 0.55, 1.0]);
+        const end = boundary.length > 3
+          && Number(boundary[0][0]) === Number(boundary[boundary.length - 1][0])
+          && Number(boundary[0][1]) === Number(boundary[boundary.length - 1][1])
+          ? boundary.length - 1
+          : boundary.length;
+        const points = [];
+        for (let i = 0; i < end; i += 1) {
+          points.push(Number(boundary[i][0]), Number(boundary[i][1]), Number(boundary[i][2] || 0));
+        }
+        polygon.addOuterBoundary(points);
+        polygon.setColor?.(color);
+        polygon.setOpacity?.(isExclusion ? 0.3 : (isLocal ? 0.18 : 0.08));
+        polygon.setPickable?.(false);
+        scene.addEntity(polygon);
+        this.opsPolygonEntities.push(polygon);
+      } else if (
+        ['vertiport', 'incident_site'].includes(feature.properties?.type)
+        && feature.geometry?.type === 'Point'
+      ) {
+        const coordinate = feature.geometry.coordinates || [];
+        if (!Number.isFinite(Number(coordinate[0])) || !Number.isFinite(Number(coordinate[1]))) continue;
+        const type = feature.properties.type;
+        const labelPrefix = type === 'vertiport' ? '[BASE]' : '[INCIDENT]';
+        const pin = new window.mapray.PinEntity(scene);
+        pin.altitude_mode = window.mapray.AltitudeMode.ABSOLUTE;
+        const position = new window.mapray.GeoPoint(
+          Number(coordinate[0]),
+          Number(coordinate[1]),
+          Number(coordinate[2] || 0) + Number(this.geoOrigin.altitude || 0)
+            + Number(this.geoOrigin.z_offset || 0),
+        );
+        if (typeof pin.addTextPin === 'function') {
+          pin.addTextPin(`${labelPrefix} ${feature.properties?.name || type}`, position);
+        } else {
+          safeSetEntityPosition(pin, position);
+        }
+        pin.setSize?.(type === 'incident_site' ? [44, 44] : [36, 36]);
+        pin.setPickable?.(false);
+        scene.addEntity(pin);
+        this.opsPointEntities.push(pin);
       }
     }
+  }
+
+  focusWideArea(extent) {
+    if (!this.ready || !extent?.center) return false;
+    const longitude = Number(extent.center.longitude);
+    const latitude = Number(extent.center.latitude);
+    if (!Number.isFinite(longitude) || !Number.isFinite(latitude)) return false;
+    const targetHeight = Number(this.geoOrigin.altitude || 0) + Number(this.geoOrigin.z_offset || 0);
+    try {
+      this.viewer.setCameraPosition?.({
+        longitude,
+        latitude: latitude - 0.025,
+        height: targetHeight + 6_500,
+      });
+      this.viewer.setLookAtPosition?.({ longitude, latitude, height: targetHeight }, 0);
+      return true;
+    } catch (error) {
+      console.warn('[MaprayLayer] focusWideArea warning:', error);
+      return false;
+    }
+  }
+
+  focusGeoPoint(point, { cameraHeightOffset = 650 } = {}) {
+    if (!this.ready || !point) return false;
+    const longitude = Number(point.longitude);
+    const latitude = Number(point.latitude);
+    const height = Number(point.height || 0) + Number(this.geoOrigin.altitude || 0)
+      + Number(this.geoOrigin.z_offset || 0);
+    if (!Number.isFinite(longitude) || !Number.isFinite(latitude) || !Number.isFinite(height)) return false;
+    this.createNonDegenerateCameraPose(
+      latitude,
+      longitude,
+      height + Math.max(50, Number(cameraHeightOffset) || 650),
+      -55,
+      height,
+    );
+    return true;
   }
 
   update(id, rosX, rosY, rosZ) {

@@ -20,6 +20,15 @@ assert.equal(store.selectIncident('event-1'), true);
 assert.equal(store.getSnapshot().selectedDroneId, 'Drone-1');
 assert.equal(store.getSnapshot().selectedIncidentId, 'event-1');
 assert.equal(changes.at(-1).change.type, 'incident-selection');
+assert.deepEqual(store.getDiagnostics(), {
+  revision: store.getSnapshot().revision,
+  droneCount: 2,
+  incidentCount: 1,
+  maxIncidents: 2,
+  listenerCount: 1,
+  selectedDroneId: 'Drone-1',
+  selectedIncidentId: 'event-1',
+});
 
 assert.deepEqual(computeLayoutPixels(1000, 'operations'), {
   mode: 'operations', mapHeight: 716, threeHeight: 278, splitterVisible: true,
