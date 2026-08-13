@@ -1,0 +1,2 @@
+# Runtime assets are hash-verified byte-for-byte by tools/scenario_contract.py.
+runtime-assets/shibuya/* binary

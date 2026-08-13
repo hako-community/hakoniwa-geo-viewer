@@ -205,6 +205,15 @@ cython_debug/
 # Generated browser scenario assets. Recreate with deploy_viewer_assets.ps1.
 runtime-assets/*
 !runtime-assets/.gitkeep
+!runtime-assets/shibuya/
+runtime-assets/shibuya/*
+!runtime-assets/shibuya/manifest.json
+!runtime-assets/shibuya/terrain-grid.json
+!runtime-assets/shibuya/terrain-grid-wide-5km.json
+!runtime-assets/shibuya/buildings.xml
+!runtime-assets/shibuya/buildings-lod1.json
+!runtime-assets/shibuya/city-pipeline-manifest.json
+!runtime-assets/shibuya/terrain-source-manifest.json
 
 # Marimo
 marimo/_static/

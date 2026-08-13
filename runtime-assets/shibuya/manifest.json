@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "shibuya",
+  "generatedAt": "2026-08-12T11:25:30.6028291Z",
+  "coordinateContract": {
+    "frame": "mujoco_x_north_y_minus_east_z_up",
+    "rows": 257,
+    "columns": 257,
+    "xMinM": -300.0,
+    "xMaxM": 300.0,
+    "yMinM": -300.0,
+    "yMaxM": 300.0,
+    "zBaselineM": 15.07,
+    "threeModelHeight": "modelHeightsM",
+    "mujocoModelHeight": "modelHeightsM",
+    "maprayAbsoluteHeight": "modelHeightsM + zBaselineM"
+  },
+  "files": [
+    {
+      "path": "terrain-grid.json",
+      "bytes": 1221945,
+      "sha256": "88301f81592f219a1ca2502564c1c83243826b20bdd88c5fbc8795073311f13c",
+      "sourceRelativePath": "runtime/windows/generated/shibuya/terrain-grid.json"
+    },
+    {
+      "path": "buildings.xml",
+      "bytes": 1381991,
+      "sha256": "21ee97885226bee5b0be7528268993b5a5cd8bdb23f7f1f9ca0460ff915c277c",
+      "sourceRelativePath": "runtime/windows/generated/shibuya/buildings.xml"
+    },
+    {
+      "path": "buildings-lod1.json",
+      "bytes": 524580,
+      "sha256": "a6ddf2c57e38343fc940d9b34e7d1126015ea00c08bef73b2d0a8abd0295bb0f",
+      "sourceRelativePath": "runtime/windows/generated/shibuya/buildings-lod1.json"
+    },
+    {
+      "path": "city-pipeline-manifest.json",
+      "bytes": 3148,
+      "sha256": "078e77855de4ea2b260e94219254d8ca68389dd057d00f59c6cd8bac5e8ba0ea",
+      "sourceRelativePath": "runtime/windows/generated/shibuya/manifest.json"
+    },
+    {
+      "path": "terrain-source-manifest.json",
+      "bytes": 8406,
+      "sha256": "bd2d46f7e7dbc4f76fb79df93cad78a67ef6237f8cb6c602341cf77e8c87f2ae",
+      "sourceRelativePath": "runtime/windows/generated/shibuya/terrain-manifest.json"
+    }
+  ]
+}

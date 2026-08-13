@@ -1,0 +1,118 @@
+{
+  "building_counts": {
+    "building_body_count": 4266,
+    "building_geom_count": 4266,
+    "building_record_count": 4266
+  },
+  "duration_seconds": 16.498,
+  "files": {
+    "buildings-lod1.json": {
+      "bytes": 524580,
+      "sha256": "a6ddf2c57e38343fc940d9b34e7d1126015ea00c08bef73b2d0a8abd0295bb0f"
+    },
+    "buildings-obb.json": {
+      "bytes": 4174085,
+      "sha256": "41cf6c3f4f97cea3b9bca9934b888de8b3f76ce5829b4f3edac328254ad26e07"
+    },
+    "buildings.xml": {
+      "bytes": 1381991,
+      "sha256": "21ee97885226bee5b0be7528268993b5a5cd8bdb23f7f1f9ca0460ff915c277c"
+    },
+    "drone-base.xml": {
+      "bytes": 5607,
+      "sha256": "88e49a24f45385156371871e9a851af65fdf6ddbbe3fb462f35e98c46b38ce34"
+    },
+    "drone.xml": {
+      "bytes": 1387473,
+      "sha256": "90e12953ecc67acde6fabf32a56a5c9165c9432516c3a7b6bc557ae409ed4ebf"
+    }
+  },
+  "integration": {
+    "added_building_nodes": 4266,
+    "removed_existing_building_nodes": 4266
+  },
+  "reference_comparison": {
+    "horizontal_max_m": 0.0,
+    "horizontal_mean_m": 0.0,
+    "horizontal_rms_m": 0.0,
+    "matched_geom_count": 4266,
+    "spatial_max_m": 0.0,
+    "spatial_rms_m": 0.0,
+    "vertical_max_m": 0.0,
+    "vertical_mean_m": 0.0,
+    "vertical_rms_m": 0.0
+  },
+  "scenario": {
+    "base_model": "runtime/windows/scenarios/shibuya/config/drone/mujoco-shibuya-api-1/drone-reference-w1.xml",
+    "citygml": {
+      "base_epsilon_m": 0.2,
+      "kinds": [
+        "bldg"
+      ],
+      "pattern": "*bldg*_op.gml",
+      "swap_latlon": true
+    },
+    "collision": {
+      "mode": "drone"
+    },
+    "extent": {
+      "east_west_half_m": 300.0,
+      "north_south_half_m": 300.0
+    },
+    "geometry": {
+      "wall_thickness_m": 0.1,
+      "waste_threshold": 1.0
+    },
+    "horizontal_crs": "EPSG:6677",
+    "mujoco_axes": {
+      "x": "north",
+      "y": "-east",
+      "z": "up"
+    },
+    "name": "shibuya",
+    "origin": {
+      "altitude": 0.0,
+      "latitude": 35.6625,
+      "longitude": 139.70625
+    },
+    "reference_model": "runtime/windows/scenarios/shibuya/config/drone/mujoco-shibuya-api-1/drone-reference-w1.xml",
+    "schema_version": 1,
+    "source_crs": "EPSG:4326",
+    "vertical": {
+      "datum": "orthometric_height",
+      "z_offset": 0.0
+    }
+  },
+  "schema_version": 1,
+  "selection": {
+    "indexed_count": 137,
+    "query": {
+      "bbox": {
+        "max_lat": 35.66519494585236,
+        "max_lon": 139.70956699817765,
+        "min_lat": 35.65980505414764,
+        "min_lon": 139.70293300182237
+      },
+      "center_lat": 35.6625,
+      "center_lon": 139.70625,
+      "ew_m": 300.0,
+      "ns_m": 300.0
+    },
+    "selected": [
+      {
+        "kind": "bldg",
+        "mesh": "53393596",
+        "path": "udx/bldg/53393596_bldg_6697_op.gml"
+      }
+    ]
+  },
+  "source_root": "D:\\work_hako\\work_mapray\\data\\plateau\\shibuya-2023",
+  "validation": {
+    "building_body_count": 4266,
+    "building_geom_count": 4266,
+    "mujoco_version": "3.8.0",
+    "nbody": 4287,
+    "ngeom": 4287,
+    "njnt": 2
+  }
+}
