@@ -17,6 +17,26 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Checkout pinned demo workspace contracts
+        uses: actions/checkout@v4
+        with:
+          repository: hako-community/hakoniwa-mapray-demo
+          ref: 35ea3a40bb384782eb750c54bbe142505a0179d9
+          path: hakoniwa-mapray-demo
+
+      - name: Assemble integration workspace
+        shell: bash
+        run: |
+          cp -R hakoniwa-mapray-demo/scripts ../scripts
+          cp -R hakoniwa-mapray-demo/runtime ../runtime
+          cp -R third_party/hakoniwa-web3d-drone ../hakoniwa-web3d-drone
+          mkdir -p ../runtime/windows/generated/shibuya
+          cp runtime-assets/shibuya/terrain-grid.json ../runtime/windows/generated/shibuya/terrain-grid.json
+          cp runtime-assets/shibuya/buildings.xml ../runtime/windows/generated/shibuya/buildings.xml
+          cp runtime-assets/shibuya/buildings-lod1.json ../runtime/windows/generated/shibuya/buildings-lod1.json
+          cp runtime-assets/shibuya/city-pipeline-manifest.json ../runtime/windows/generated/shibuya/manifest.json
+          cp runtime-assets/shibuya/terrain-source-manifest.json ../runtime/windows/generated/shibuya/terrain-manifest.json
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

@@ -199,6 +199,7 @@ viewer-config-shibuya.json
        |- mapray.json
        |- runtime-assets/shibuya/manifest.json
        |- runtime-assets/shibuya/terrain-grid.json
+       |- runtime-assets/shibuya/terrain-grid-wide-5km.json
        |- runtime-assets/shibuya/buildings.xml
        `- web3d scene config
 ```
@@ -211,6 +212,12 @@ viewer-config-shibuya.json
 このGLBは標準起動には不要であり、存在しなくても`doctor`、`test`、`smoke`と
 Mapray/Leafletの基本表示を実行できます。配布する場合は、出典、加工内容、座標契約、
 checksumをRelease Assetと一緒に記録します。
+
+`terrain-grid-wide-5km.json`は、PLATEAU CityGML TINReliefの2次メッシュ
+`533935`と`533945`から生成した513×513の広域表示用DEMです。下段Three.jsの
+`5km overview`だけで使い、平面地面と置き換えます。公開3D Tilesの楕円体高には
+GSIGEO2011のジオイド高を含む原点補正を適用し、DEMと同じ箱庭基準高へ合わせます。
+`600m detail`の地形とMuJoCo物理資産は変更しません。
 
 座標契約:
 

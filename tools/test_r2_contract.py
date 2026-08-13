@@ -18,13 +18,67 @@ class PhaseR2ContractTest(unittest.TestCase):
             (ROOT / "config/web3d-scene-shibuya.json").read_text(encoding="utf-8")
         )
         self.assertGreaterEqual(len(scene["environments"]), 1)
-        terrain = scene["environments"][0]
+        terrain = next(
+            item
+            for item in scene["environments"]
+            if item.get("name") == "shibuya-terrain"
+        )
         self.assertEqual("terrain-grid", terrain["type"])
         self.assertEqual(
             "../runtime-assets/shibuya/terrain-grid.json",
             terrain["terrainGridPath"],
         )
         self.assertNotIn("base-floor.glb", json.dumps(scene))
+
+    def test_wide_scene_uses_absolute_height_dem_without_flat_ground(self) -> None:
+        scene = json.loads(
+            (ROOT / "config/web3d-scene-shibuya.json").read_text(encoding="utf-8")
+        )
+        streamed_city = next(
+            item
+            for item in scene["environments"]
+            if item.get("name") == "shibuya-wide-5km-plateau-lod1"
+        )
+        terrain = next(
+            item
+            for item in scene["environments"]
+            if item.get("name") == "shibuya-wide-5km-dem"
+        )
+        self.assertFalse(streamed_city["ground"]["enabled"])
+        self.assertEqual(["wide"], terrain["scopes"])
+        self.assertEqual(
+            "../runtime-assets/shibuya/terrain-grid-wide-5km.json",
+            terrain["terrainGridPath"],
+        )
+        self.assertAlmostEqual(0.0, terrain["pos"][2], places=9)
+        self.assertAlmostEqual(51.8482, streamed_city["origin"]["heightM"], places=4)
+        self.assertAlmostEqual(0.5, streamed_city["verticalOffsetM"], places=9)
+        self.assertAlmostEqual(
+            36.7782,
+            streamed_city["verticalReference"]["geoidHeightM"],
+            places=4,
+        )
+        self.assertAlmostEqual(
+            streamed_city["origin"]["heightM"],
+            streamed_city["verticalReference"]["zBaselineM"]
+            + streamed_city["verticalReference"]["geoidHeightM"],
+            places=4,
+        )
+        self.assertEqual(88, scene["environmentScopes"]["wide"]["camera"]["maxPolarAngleDeg"])
+        self.assertFalse(scene["environmentScopes"]["wide"]["camera"]["enablePan"])
+
+        grid = json.loads(
+            (ROOT / "runtime-assets/shibuya/terrain-grid-wide-5km.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual((513, 513), (grid["rows"], grid["columns"]))
+        self.assertEqual((-2500.0, 2500.0), (grid["xMinM"], grid["xMaxM"]))
+        self.assertEqual((-2500.0, 2500.0), (grid["yMinM"], grid["yMaxM"]))
+        self.assertAlmostEqual(15.07, grid["zBaselineM"], places=9)
+        absolute_heights = [value + grid["zBaselineM"] for value in grid["modelHeightsM"]]
+        self.assertGreaterEqual(min(absolute_heights), 0.5)
+        self.assertLessEqual(max(absolute_heights), 43.5)
 
     def test_actual_grid_produces_expected_geometry_size_and_frame(self) -> None:
         grid = json.loads(

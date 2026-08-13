@@ -1,0 +1,281 @@
+{
+  "browser_terrain_grid": {
+    "columns": 257,
+    "height_count": 66049,
+    "rounding_precision_m": 0.0001,
+    "rows": 257
+  },
+  "building_terrain_comparison": {
+    "absolute_max_m": 4.971273169319385,
+    "absolute_p95_m": 1.451319806901072,
+    "absolute_rms_m": 0.7320486611180248,
+    "building_base_minus_terrain_mean_m": -0.46001656142903724,
+    "building_base_minus_terrain_median_m": -0.2695950608149822,
+    "matched_building_count": 801,
+    "within_1m_ratio": 0.885143570536829,
+    "within_2m_ratio": 0.9725343320848939
+  },
+  "duration_seconds": 17.601,
+  "files": {
+    "drone-terrain.xml": {
+      "bytes": 1387609,
+      "sha256": "40022ca6d5408ce9d0b9c6fb7f52dd11632e8afaf195582dbc2ed52479c7c418"
+    },
+    "terrain-grid.json": {
+      "bytes": 1221945,
+      "sha256": "88301f81592f219a1ca2502564c1c83243826b20bdd88c5fbc8795073311f13c"
+    },
+    "terrain-mapray.tif": {
+      "bytes": 163886,
+      "sha256": "2b76066d69c4d879bc4521057f4e2964e30240cd0275ccd732e20cdf326cf492"
+    },
+    "terrain.hfield": {
+      "bytes": 264204,
+      "sha256": "d2a34e0c3a7ff9a13daabf2d57c785671888cb90c3b32ca54d9e5119701cfc1a"
+    }
+  },
+  "geotiff_validation": {
+    "max_absolute_error_m": 0.028575897216796875,
+    "rms_error_m": 0.013858869818822873,
+    "sample_count": 9,
+    "samples": [
+      {
+        "error_m": 0.0014400482177734375,
+        "expected_height_m": 26.443593978881836,
+        "geotiff_height_m": 26.44503402709961,
+        "latitude": 35.66046926369419,
+        "longitude": 139.70376811740712
+      },
+      {
+        "error_m": 0.015445709228515625,
+        "expected_height_m": 33.610538482666016,
+        "geotiff_height_m": 33.62598419189453,
+        "latitude": 35.6604719117226,
+        "longitude": 139.70625321347464
+      },
+      {
+        "error_m": 0.00685882568359375,
+        "expected_height_m": 30.985713958740234,
+        "geotiff_height_m": 30.992572784423828,
+        "latitude": 35.660474508469555,
+        "longitude": 139.70873830986312
+      },
+      {
+        "error_m": 0.028575897216796875,
+        "expected_height_m": 23.18841552734375,
+        "geotiff_height_m": 23.216991424560547,
+        "latitude": 35.66249735177489,
+        "longitude": 139.70376484109232
+      },
+      {
+        "error_m": -0.0005168914794921875,
+        "expected_height_m": 30.2714900970459,
+        "geotiff_height_m": 30.270973205566406,
+        "latitude": 35.6625,
+        "longitude": 139.70625
+      },
+      {
+        "error_m": 0.002635955810546875,
+        "expected_height_m": 34.141395568847656,
+        "geotiff_height_m": 34.1440315246582,
+        "latitude": 35.662502596939845,
+        "longitude": 139.70873515922878
+      },
+      {
+        "error_m": -0.023853302001953125,
+        "expected_height_m": 16.36897850036621,
+        "geotiff_height_m": 16.345125198364258,
+        "latitude": 35.664525439170866,
+        "longitude": 139.70376156445022
+      },
+      {
+        "error_m": -0.0064601898193359375,
+        "expected_height_m": 30.0209903717041,
+        "geotiff_height_m": 30.014530181884766,
+        "latitude": 35.66452808759268,
+        "longitude": 139.70624678620436
+      },
+      {
+        "error_m": 0.002532958984375,
+        "expected_height_m": 34.50043487548828,
+        "geotiff_height_m": 34.502967834472656,
+        "latitude": 35.66453068472542,
+        "longitude": 139.7087320082796
+      }
+    ]
+  },
+  "grid": {
+    "columns": 257,
+    "initially_missing_cells": 89,
+    "maximum_absolute_height_m": 36.59208297729492,
+    "maximum_model_height_m": 21.522083282470703,
+    "minimum_absolute_height_m": 15.069999694824219,
+    "minimum_model_height_m": 0.0,
+    "rows": 257,
+    "z_baseline_m": 15.07
+  },
+  "integration": {
+    "base_depth_m": 5.0,
+    "elevation_range_m": 21.522083282470703,
+    "hfield_asset": "terrain",
+    "hfield_columns": 257,
+    "hfield_geom": "ground",
+    "hfield_rows": 257,
+    "maximum_model_height_m": 21.522083282470703,
+    "minimum_model_height_m": 0.0,
+    "removed_plane_ground": true
+  },
+  "mapray_geotiff": {
+    "bounds": [
+      139.70291909685196,
+      35.659781763155806,
+      139.709580677956,
+      35.665218144427946
+    ],
+    "crs": "EPSG:4326",
+    "dtype": "float32",
+    "height": 257,
+    "maximum_height_m": 36.42970275878906,
+    "minimum_height_m": 15.069999694824219,
+    "nodata": -9999.0,
+    "raster_type": "Area",
+    "valid_cell_count": 66049,
+    "width": 257
+  },
+  "mujoco_validation": {
+    "hfield_columns": 257,
+    "hfield_rows": 257,
+    "max_absolute_error_m": 5.949848684849712e-07,
+    "mujoco_version": "3.8.0",
+    "nbody": 4287,
+    "ngeom": 4287,
+    "nhfield": 1,
+    "rms_error_m": 2.706230463517296e-07,
+    "sample_count": 9,
+    "samples": [
+      {
+        "error_m": 4.630259553550786e-07,
+        "expected_height_m": 18.923343658447266,
+        "mujoco_height_m": 18.92334412147322,
+        "x_m": -300.0,
+        "y_m": -300.0
+      },
+      {
+        "error_m": -1.7113563899329165e-08,
+        "expected_height_m": 18.730453491210938,
+        "mujoco_height_m": 18.730453474097374,
+        "x_m": 0.0,
+        "y_m": -300.0
+      },
+      {
+        "error_m": 5.949848684849712e-07,
+        "expected_height_m": 15.694372177124023,
+        "mujoco_height_m": 15.694372772108892,
+        "x_m": 300.0,
+        "y_m": -300.0
+      },
+      {
+        "error_m": -2.0172711856503156e-07,
+        "expected_height_m": 18.738842010498047,
+        "mujoco_height_m": 18.73884180877093,
+        "x_m": -300.0,
+        "y_m": 0.0
+      },
+      {
+        "error_m": 3.926437841528241e-08,
+        "expected_height_m": 15.20149040222168,
+        "mujoco_height_m": 15.201490441486058,
+        "x_m": 0.0,
+        "y_m": 0.0
+      },
+      {
+        "error_m": -2.1452143528222223e-07,
+        "expected_height_m": 10.772035598754883,
+        "mujoco_height_m": 10.772035384233448,
+        "x_m": 300.0,
+        "y_m": 0.0
+      },
+      {
+        "error_m": -3.034389806089166e-08,
+        "expected_height_m": 4.72327995300293,
+        "mujoco_height_m": 4.723279922659032,
+        "x_m": -300.0,
+        "y_m": 300.0
+      },
+      {
+        "error_m": -3.113802904408658e-08,
+        "expected_height_m": 0.7391433715820312,
+        "mujoco_height_m": 0.7391433404440022,
+        "x_m": 0.0,
+        "y_m": 300.0
+      },
+      {
+        "error_m": -1.7125969975495536e-08,
+        "expected_height_m": 2.1300010681152344,
+        "mujoco_height_m": 2.1300010509892644,
+        "x_m": 300.0,
+        "y_m": 300.0
+      }
+    ]
+  },
+  "scenario": {
+    "base_model": "runtime/windows/scenarios/shibuya/config/drone/mujoco-shibuya-api-1/drone-reference-w1.xml",
+    "citygml": {
+      "base_epsilon_m": 0.2,
+      "kinds": [
+        "bldg"
+      ],
+      "pattern": "*bldg*_op.gml",
+      "swap_latlon": true
+    },
+    "collision": {
+      "mode": "drone"
+    },
+    "extent": {
+      "east_west_half_m": 300.0,
+      "north_south_half_m": 300.0
+    },
+    "geometry": {
+      "wall_thickness_m": 0.1,
+      "waste_threshold": 1.0
+    },
+    "horizontal_crs": "EPSG:6677",
+    "mujoco_axes": {
+      "x": "north",
+      "y": "-east",
+      "z": "up"
+    },
+    "name": "shibuya",
+    "origin": {
+      "altitude": 0.0,
+      "latitude": 35.6625,
+      "longitude": 139.70625
+    },
+    "reference_model": "runtime/windows/scenarios/shibuya/config/drone/mujoco-shibuya-api-1/drone-reference-w1.xml",
+    "schema_version": 1,
+    "source_crs": "EPSG:4326",
+    "terrain": {
+      "base_depth_m": 5.0,
+      "grid_size": 257,
+      "nodata": -9999.0,
+      "source": "PLATEAU CityGML TINRelief EPSG:6697",
+      "source_margin_m": 20.0,
+      "validation_tolerance_m": 0.05,
+      "z_baseline": "building_min"
+    },
+    "vertical": {
+      "datum": "orthometric_height",
+      "z_offset": 0.0
+    }
+  },
+  "schema_version": 1,
+  "source_files": [
+    "D:\\work_hako\\work_mapray\\data\\plateau\\shibuya-2023\\udx\\dem\\533935_dem_6697_op.gml"
+  ],
+  "source_root": "D:\\work_hako\\work_mapray\\data\\plateau\\shibuya-2023",
+  "tin": {
+    "scanned_triangle_count": 1101033,
+    "selected_triangle_count": 33109,
+    "vertex_count": 16820
+  }
+}

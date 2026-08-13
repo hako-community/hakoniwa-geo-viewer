@@ -1,5 +1,16 @@
 {
   "sdkVersion": "0.9.6",
+  "buildingSourceMode": "public-wide",
+  "publicBuildingTilePrefixes": [
+    "https://opentiles.mapray.com/3dcity/533935/",
+    "https://opentiles.mapray.com/3dcity/533945/"
+  ],
+  "buildingTileAttributions": [
+    {
+      "display": "Project PLATEAU",
+      "link": "https://www.mlit.go.jp/plateau/"
+    }
+  ],
   "buildingDatasetIds": [
     "6329541064654848",
     "4785831235551232",

@@ -2,11 +2,99 @@
   "version": "1.0",
   "format": "compact",
   "environmentMode": "physics",
+  "initialEnvironmentScope": "wide",
+  "environmentScopes": {
+    "wide": {
+      "camera": {
+        "position": [-1589.0, 1026.0, 7600.0],
+        "targetPositionRos": [-389.0, 226.0, 40.0],
+        "far": 18000,
+        "minPolarAngleDeg": 1,
+        "maxPolarAngleDeg": 88,
+        "minDistanceM": 100,
+        "enablePan": false
+      },
+      "fog": { "near": 6500, "far": 18000 }
+    },
+    "local": {
+      "camera": {
+        "position": [-250.0, 220.0, 230.0],
+        "targetPositionRos": [0.0, 0.0, 30.0],
+        "far": 5000,
+        "minPolarAngleDeg": 1,
+        "maxPolarAngleDeg": 179,
+        "minDistanceM": 1,
+        "enablePan": true
+      },
+      "fog": { "near": 700, "far": 2200 }
+    }
+  },
   "environments": [
+    {
+      "name": "shibuya-wide-5km-plateau-lod1",
+      "type": "plateau-3dtiles",
+      "modes": ["physics", "visual"],
+      "scopes": ["wide"],
+      "origin": { "latitude": 35.6625, "longitude": 139.70625, "heightM": 51.8482 },
+      "verticalOffsetM": 0.5,
+      "verticalReference": {
+        "tiles": "WGS84 ellipsoidal height",
+        "simulation": "orthometric height relative to zBaselineM",
+        "geoidModel": "GSIGEO2011 Ver.2.2",
+        "geoidHeightM": 36.7782,
+        "zBaselineM": 15.07,
+        "localOriginEllipsoidalHeightM": 51.8482,
+        "terrainClearanceM": 0.5
+      },
+      "errorTarget": 24,
+      "clipSizeM": 5000,
+      "clipCenter": { "latitude": 35.659, "longitude": 139.70375, "heightM": 51.8377 },
+      "cacheMaxSize": 320,
+      "cacheMinSize": 240,
+      "downloadJobsPerSource": 2,
+      "preload": { "enabled": true, "resolution": 1600, "marginM": 100, "heightM": 7000 },
+      "dracoDecoderPath": "https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/gltf/",
+      "dracoWorkerLimit": 2,
+      "ground": {
+        "enabled": false,
+        "sizeM": 5000,
+        "elevationM": 15.07,
+        "color": "#879987",
+        "grid": true,
+        "gridDivisions": 20
+      },
+      "sources": [
+        { "id": "13103-minato", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13103-bldg-lod1-texture-latest/tileset.json" },
+        { "id": "13104-shinjuku", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13104-bldg-lod1-texture-latest/tileset.json" },
+        { "id": "13109-shinagawa", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13109-bldg-lod1-texture-latest/tileset.json" },
+        { "id": "13110-meguro", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13110-bldg-lod1-texture-latest/tileset.json" },
+        { "id": "13112-setagaya", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13112-bldg-lod1-texture-latest/tileset.json" },
+        { "id": "13113-shibuya", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13113-bldg-lod1-texture-latest/tileset.json" }
+      ]
+    },
+    {
+      "name": "shibuya-wide-5km-dem",
+      "type": "terrain-grid",
+      "modes": ["physics", "visual"],
+      "scopes": ["wide"],
+      "terrainGridPath": "../runtime-assets/shibuya/terrain-grid-wide-5km.json",
+      "pos": [-388.000452315624, 226.85525872242, 0.0],
+      "material": {
+        "mode": "elevation",
+        "lowColor": "#496b4f",
+        "middleColor": "#849276",
+        "highColor": "#c4bca3",
+        "wireframe": false,
+        "roughness": 0.96,
+        "metalness": 0.0
+      },
+      "debug": { "grid": false, "axes": false }
+    },
     {
       "name": "shibuya-terrain",
       "type": "terrain-grid",
       "modes": ["physics", "visual"],
+      "scopes": ["local"],
       "terrainGridPath": "../runtime-assets/shibuya/terrain-grid.json",
       "material": {
         "mode": "elevation",
@@ -25,10 +113,27 @@
       }
     },
     {
+      "name": "shibuya-plateau-lod1",
+      "type": "lod1-city",
+      "modes": ["physics", "visual"],
+      "scopes": ["local"],
+      "lod1Path": "../runtime-assets/shibuya/buildings-lod1.json",
+      "zBaselineM": 15.07,
+      "material": {
+        "wallPalette": ["#d8d1c4", "#c8d2d6", "#d8c2af", "#c8c6be", "#d9d9d2"],
+        "roofColor": "#70797c",
+        "roughness": 0.78,
+        "metalness": 0.02,
+        "castShadow": true
+      }
+    },
+    {
       "name": "shibuya-collision-buildings",
       "type": "model",
       "kind": "mjcf",
       "modes": ["physics"],
+      "scopes": ["local"],
+      "enabled": false,
       "model": "../runtime-assets/shibuya/buildings.xml",
       "material": {
         "mode": "collision-debug",
@@ -41,24 +146,31 @@
       "name": "shibuya-plateau-visual",
       "type": "model",
       "modes": ["visual"],
+      "scopes": ["local"],
       "optional": true,
       "model": "../assets/models/13113_shibuya-ku_pref_2023_citygml_2_op.glb"
     }
   ],
   "main_camera": {
-    "fov": 75,
-    "near": 0.1,
+    "fov": 55,
+    "near": 0.5,
     "far": 5000,
-    "initialMode": "follow",
-    "followDistance": 30.0,
+    "initialMode": "fixed",
+    "followDistance": 70.0,
     "followLerpPos": 8.0,
     "followLerpTarget": 10.0,
     "followToggleKey": "c",
-    "position": [-20.0, 0.0, 15.0],
-    "target": "Drone"
+    "position": [-250.0, 220.0, 230.0],
+    "targetPositionRos": [0.0, 0.0, 30.0]
   },
-  "defaultDroneProfile": "base",
+  "defaultDroneProfile": "origin-01",
   "droneProfiles": {
+    "origin-01": {
+      "label": "Origin-01 (bundled)",
+      "droneTypesPath": "../third_party/hakoniwa-web3d-drone/config/drone_types-origin-01.json?v=phase-e-20260813-13",
+      "droneType": "origin_01",
+      "note": "Imported from hakoniwa-godot-drone-courses_4_1 under the MIT license."
+    },
     "base": {
       "label": "Base quadrotor (bundled)",
       "droneTypesPath": "../third_party/hakoniwa-web3d-drone/config/drone_types-quadrotor_base.json",
@@ -72,11 +184,11 @@
       "note": "Place the DJI GLB files under third_party/hakoniwa-web3d-drone/assets/local_models/."
     }
   },
-  "droneTypesPath": "../third_party/hakoniwa-web3d-drone/config/drone_types-quadrotor_base.json",
+  "droneTypesPath": "../third_party/hakoniwa-web3d-drone/config/drone_types-origin-01.json?v=phase-e-20260813-13",
   "drones": [
     {
       "name": "Drone",
-      "type": "quadrotor_base",
+      "type": "origin_01",
       "pos": [0.0, 0.0, 20.0],
       "hpr": [0.0, 0.0, 0.0]
     }

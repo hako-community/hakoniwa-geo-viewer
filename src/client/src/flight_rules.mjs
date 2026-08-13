@@ -3,6 +3,8 @@
  * Evaluates geofence breaches, path deviations, and low altitude warnings.
  */
 
+import { normalizeOperationsData } from './operations_layer.mjs?v=r8-20260811-1';
+
 const METERS_PER_LATITUDE_DEGREE = 111_320;
 
 export function geoToLocalMeters(geoPoint, originGeo) {
@@ -48,7 +50,10 @@ export function evaluateFlightRules(droneState, operationsData = {}, originGeo =
   const droneId = String(droneState.id);
 
   // 1. Geofence Check
-  const geofences = operationsData.geofences || [];
+  const normalizedOperations = Array.isArray(operationsData?.featureCollection?.features)
+    ? operationsData
+    : normalizeOperationsData(operationsData);
+  const geofences = normalizedOperations.geofences || [];
   for (const fence of geofences) {
     if (fence.geometry?.type === 'Polygon') {
       const coords = fence.geometry.coordinates[0];
@@ -56,18 +61,22 @@ export function evaluateFlightRules(droneState, operationsData = {}, originGeo =
       const minAlt = fence.properties?.minAltitudeM ?? 0;
       const maxAlt = fence.properties?.maxAltitudeM ?? 150;
       const alt = Number(droneGeo.altitude ?? droneGeo.height ?? 0);
+      const rule = fence.properties?.rule === 'exclusion' ? 'exclusion' : 'containment';
 
-      if (!isInside) {
+      if ((rule === 'containment' && !isInside) || (rule === 'exclusion' && isInside)) {
+        const isExclusion = rule === 'exclusion';
         events.push({
-          id: `rule-geofence-out-${droneId}-${fence.properties.id}`,
+          id: `rule-geofence-${isExclusion ? 'entry' : 'out'}-${droneId}-${fence.properties.id}`,
           droneId,
           type: 'GEOFENCE_BREACH',
           severity: 'HIGH',
-          title: '区域外飛行検出',
-          message: `機体 ${droneId} が許可区域外 (${fence.properties.name || fence.properties.id}) に出ました`,
+          title: isExclusion ? '進入禁止区域への侵入' : '区域外飛行検出',
+          message: isExclusion
+            ? `機体 ${droneId} が進入禁止区域 (${fence.properties.name || fence.properties.id}) に入りました`
+            : `機体 ${droneId} が許可区域外 (${fence.properties.name || fence.properties.id}) に出ました`,
           timestamp: Date.now(),
         });
-      } else if (alt < minAlt || alt > maxAlt) {
+      } else if (rule === 'containment' && isInside && (alt < minAlt || alt > maxAlt)) {
         events.push({
           id: `rule-geofence-alt-${droneId}-${fence.properties.id}`,
           droneId,
@@ -82,31 +91,34 @@ export function evaluateFlightRules(droneState, operationsData = {}, originGeo =
   }
 
   // 2. Planned Route Deviation Check
-  const plannedRoutes = operationsData.plannedRoutes || [];
-  for (const route of plannedRoutes) {
-    if (route.geometry?.type === 'LineString') {
-      const coords = route.geometry.coordinates;
-      const maxDeviation = route.properties?.maxDeviationM ?? 15;
-      let minDistance = Infinity;
-
-      for (let i = 0; i < coords.length - 1; i++) {
-        const pA = geoToLocalMeters({ longitude: coords[i][0], latitude: coords[i][1] }, originGeo);
-        const pB = geoToLocalMeters({ longitude: coords[i+1][0], latitude: coords[i+1][1] }, originGeo);
-        const dist = distanceToSegment2DMeters(dronePosM, pA, pB);
-        if (dist < minDistance) minDistance = dist;
-      }
-
-      if (minDistance > maxDeviation) {
-        events.push({
-          id: `rule-route-dev-${droneId}-${route.properties.id}`,
-          droneId,
-          type: 'ROUTE_DEVIATION',
-          severity: 'WARNING',
-          title: '計画経路逸脱',
-          message: `機体 ${droneId} が計画経路から ${minDistance.toFixed(1)}m 逸脱しています (許容: ${maxDeviation}m)`,
-          timestamp: Date.now(),
-        });
-      }
+  const allRoutes = normalizedOperations.plannedRoutes || [];
+  const assignedRoutes = droneState.routeId
+    ? allRoutes.filter((route) => String(route.properties?.id) === String(droneState.routeId))
+    : allRoutes;
+  let nearest = null;
+  for (const route of assignedRoutes) {
+    if (route.geometry?.type !== 'LineString') continue;
+    const coords = route.geometry.coordinates;
+    let minDistance = Infinity;
+    for (let i = 0; i < coords.length - 1; i++) {
+      const pA = geoToLocalMeters({ longitude: coords[i][0], latitude: coords[i][1] }, originGeo);
+      const pB = geoToLocalMeters({ longitude: coords[i + 1][0], latitude: coords[i + 1][1] }, originGeo);
+      minDistance = Math.min(minDistance, distanceToSegment2DMeters(dronePosM, pA, pB));
+    }
+    if (!nearest || minDistance < nearest.distanceM) nearest = { route, distanceM: minDistance };
+  }
+  if (nearest) {
+    const maxDeviation = nearest.route.properties?.maxDeviationM ?? 15;
+    if (nearest.distanceM > maxDeviation) {
+      events.push({
+        id: `rule-route-dev-${droneId}-${nearest.route.properties.id}`,
+        droneId,
+        type: 'ROUTE_DEVIATION',
+        severity: 'WARNING',
+        title: '計画経路逸脱',
+        message: `機体 ${droneId} が計画経路から ${nearest.distanceM.toFixed(1)}m 逸脱しています (許容: ${maxDeviation}m)`,
+        timestamp: Date.now(),
+      });
     }
   }
 

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "evaluationId": "phase-d-mapray-leaflet-operations-20260812",
+  "title": "Phase D Mapray / Leaflet operation decision A/B evaluation",
+  "fleetSize": 30,
+  "scenarioMode": "fixture",
+  "successCriteria": {
+    "minimumParticipants": 3,
+    "targetParticipants": 5,
+    "locationAccuracyImprovementPoints": 20,
+    "localAnalysisTimeReductionPercent": 25,
+    "idIncidentIntegrityMinimumPercent": 80
+  },
+  "answerOptions": {
+    "incidentTypes": [
+      { "value": "ROUTE_DEVIATION", "label": "計画経路逸脱" },
+      { "value": "GEOFENCE_BREACH", "label": "区域違反" },
+      { "value": "ALTITUDE_LIMIT_BREACH", "label": "高度違反" },
+      { "value": "COLLISION", "label": "衝突" }
+    ],
+    "locations": [
+      { "value": "DETAIL_SOUTHWEST", "label": "600m詳細地区・南西側" },
+      { "value": "DETAIL_CENTER", "label": "600m詳細地区・中央" },
+      { "value": "DETAIL_NORTHEAST", "label": "600m詳細地区・北東側" }
+    ]
+  },
+  "trials": [
+    {
+      "trialId": "D-SEED-A",
+      "seed": 20260821,
+      "triggerAtSeconds": 15,
+      "targetDroneIndex": 4,
+      "incident": {
+        "id": "phase-d-route-deviation-southwest",
+        "name": "Evaluation Route Deviation Southwest",
+        "type": "ROUTE_DEVIATION",
+        "severity": "HIGH",
+        "coordinate": [139.7042, 35.6608, 52]
+      },
+      "correct": {
+        "droneId": "Drone-E",
+        "incidentId": "phase-d-route-deviation-southwest-20260821",
+        "incidentType": "ROUTE_DEVIATION",
+        "location": "DETAIL_SOUTHWEST"
+      }
+    },
+    {
+      "trialId": "D-SEED-B",
+      "seed": 20260822,
+      "triggerAtSeconds": 15,
+      "targetDroneIndex": 16,
+      "incident": {
+        "id": "phase-d-route-deviation-northeast",
+        "name": "Evaluation Route Deviation Northeast",
+        "type": "ROUTE_DEVIATION",
+        "severity": "HIGH",
+        "coordinate": [139.7083, 35.6640, 56]
+      },
+      "correct": {
+        "droneId": "Drone-Q",
+        "incidentId": "phase-d-route-deviation-northeast-20260822",
+        "incidentType": "ROUTE_DEVIATION",
+        "location": "DETAIL_NORTHEAST"
+      }
+    }
+  ]
+}

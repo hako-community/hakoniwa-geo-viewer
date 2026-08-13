@@ -37,8 +37,10 @@ class PhaseR5ContractTest(unittest.TestCase):
 
     def test_mapray_layer_operations_integration(self) -> None:
         layer = self.read("src/client/src/mapray_layer.js")
-        self.assertIn("OperationsLayerModel", layer)
         self.assertIn("loadOperationsData", layer)
+        self.assertIn("PolygonEntity", layer)
+        self.assertIn("opsPolylineEntities", layer)
+        self.assertIn("opsPolygonEntities", layer)
         this_traj = "_updateTrajectoryEntity"
         self.assertIn(this_traj, layer)
 

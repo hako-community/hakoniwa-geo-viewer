@@ -29,6 +29,13 @@ function normalizeDroneState(raw, timestampMilliseconds) {
       ? null
       : finiteNumber(raw.collidedCounts),
     impulseCollision: raw?.impulseCollision ?? null,
+    routeId: raw?.routeId == null ? null : String(raw.routeId),
+    status: String(raw?.status || 'NORMAL'),
+    isSynthetic: Boolean(raw?.isSynthetic),
+    scenarioElapsedSeconds: raw?.scenarioElapsedSeconds == null
+      ? null
+      : finiteNumber(raw.scenarioElapsedSeconds),
+    runtimeSource: raw?.runtimeSource == null ? null : String(raw.runtimeSource),
     timestampMilliseconds,
   };
 }
@@ -88,6 +95,18 @@ export class FlightStateStore {
       selectedIncidentId: this.selectedIncidentId,
       drones: Array.from(this.drones.values()).map((state) => ({ ...state })),
       incidents: this.incidents.map(cloneIncident),
+    };
+  }
+
+  getDiagnostics() {
+    return {
+      revision: this.revision,
+      droneCount: this.drones.size,
+      incidentCount: this.incidents.length,
+      maxIncidents: this.maxIncidents,
+      listenerCount: this.listeners.size,
+      selectedDroneId: this.selectedDroneId,
+      selectedIncidentId: this.selectedIncidentId,
     };
   }
 

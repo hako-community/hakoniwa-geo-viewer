@@ -25,7 +25,11 @@ class GeoViewerContractTest(unittest.TestCase):
         self.assertIn('id="three-root"', html)
         self.assertIn("new URL('./src/ui.js'", html)
         self.assertIn("await import(uiModuleUrl.href)", html)
-        self.assertIn("oom-20260811-1", html)
+        self.assertIn("phase-e-20260813-13", html)
+        self.assertIn('"3d-tiles-renderer"', html)
+        self.assertIn('"3d-tiles-renderer/gltf-cesium-rtc"', html)
+        self.assertIn('id="benchmark-start-btn"', html)
+        self.assertIn('id="benchmark-download-btn"', html)
         self.assertIn("Hakoniwa Geo + Web3D Drone Viewer", html)
 
     def test_ui_uses_public_threejs_viewer_api(self) -> None:
@@ -42,6 +46,21 @@ class GeoViewerContractTest(unittest.TestCase):
         self.assertIn("/config/viewer-config-shibuya.json", ui)
         self.assertIn("TERRAIN_GRID_ENVIRONMENT_VERSION", ui)
         self.assertIn("getEnvironmentDiagnostics", ui)
+        self.assertIn("PLATEAU_3DTILES_ENVIRONMENT_VERSION", ui)
+        self.assertIn("setEnvironmentScope", ui)
+
+    def test_wide_dem_and_stream_diagnostics_are_packaged(self) -> None:
+        self.assertTrue(
+            (ROOT / "runtime-assets/shibuya/terrain-grid-wide-5km.json").is_file()
+        )
+        scene = self.read("config/web3d-scene-shibuya.json")
+        streamed_city = self.read(
+            "third_party/hakoniwa-web3d-drone/src/plateau_3dtiles_environment.js"
+        )
+        self.assertIn("shibuya-wide-5km-dem", scene)
+        self.assertIn("terrain-grid-wide-5km.json", scene)
+        self.assertIn("sourceStats", streamed_city)
+        self.assertIn("rendererSources", streamed_city)
 
     def test_coordinate_conversion_contract_is_explicit(self) -> None:
         frame = self.read("src/client/src/frame.js")
@@ -64,6 +83,8 @@ class GeoViewerContractTest(unittest.TestCase):
         self.assertIn('"4785831235551232"', config)
         self.assertIn('"5126075927494656"', config)
         self.assertIn("buildingDatasetIds", layer)
+        self.assertIn("publicBuildingTilePrefixes", layer)
+        self.assertIn("buildingSourceMode", layer)
         self.assertIn("this.buildingScenes", layer)
         self.assertIn("/b3ddatasets/v2/", layer)
         self.assertIn("new StandardB3dProvider(dataset.url, '.bin'", layer)

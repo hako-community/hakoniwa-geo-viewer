@@ -1,0 +1,56 @@
+{
+  "type": "FeatureCollection",
+  "name": "Shibuya 5km Fleet Operations Stage 1",
+  "properties": {
+    "scenarioId": "shibuya-wide-area-5km",
+    "detailCoverage": "Only the 600m local analysis area has the current detailed Building Dataset",
+    "wideAreaCoverage": "Mapray standard map and DEM"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "id": "route-west-east", "name": "West-East Patrol", "type": "planned_route", "minAltitudeM": 45, "maxAltitudeM": 90, "maxDeviationM": 120, "cycleSeconds": 780, "targetSpeedMps": 12.0, "color": "#00bfff" },
+      "geometry": { "type": "LineString", "coordinates": [[139.6790,35.6530,55],[139.6890,35.6585,60],[139.7010,35.6610,65],[139.7120,35.6575,60],[139.7250,35.6505,55],[139.7120,35.6575,60],[139.7010,35.6610,65],[139.6890,35.6585,60],[139.6790,35.6530,55]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "route-north-south", "name": "North-South Patrol", "type": "planned_route", "minAltitudeM": 50, "maxAltitudeM": 100, "maxDeviationM": 120, "cycleSeconds": 800, "targetSpeedMps": 12.0, "color": "#9b7cff" },
+      "geometry": { "type": "LineString", "coordinates": [[139.7010,35.6800,70],[139.7050,35.6700,65],[139.70625,35.6625,60],[139.7070,35.6500,65],[139.7110,35.6380,70],[139.7070,35.6500,65],[139.70625,35.6625,60],[139.7050,35.6700,65],[139.7010,35.6800,70]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "route-ring", "name": "Outer Ring Patrol", "type": "planned_route", "minAltitudeM": 55, "maxAltitudeM": 110, "maxDeviationM": 140, "cycleSeconds": 1100, "targetSpeedMps": 12.0, "color": "#22c55e" },
+      "geometry": { "type": "LineString", "coordinates": [[139.6840,35.6720,75],[139.7060,35.6780,80],[139.7240,35.6670,75],[139.7220,35.6460,80],[139.7000,35.6390,75],[139.6820,35.6490,80],[139.6840,35.6720,75]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "shibuya-5km-operational-boundary", "name": "5km Operational Boundary", "type": "geofence", "rule": "containment", "minAltitudeM": 35, "maxAltitudeM": 120 },
+      "geometry": { "type": "Polygon", "coordinates": [[[139.676109560074,35.636542117897,0],[139.731390439926,35.636542117897,0],[139.731390439926,35.681457882103,0],[139.676109560074,35.681457882103,0],[139.676109560074,35.636542117897,0]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "restricted-zone-northeast", "name": "Northeast No-Fly Zone", "type": "geofence", "rule": "exclusion", "minAltitudeM": 0, "maxAltitudeM": 150 },
+      "geometry": { "type": "Polygon", "coordinates": [[[139.7130,35.6660,0],[139.7190,35.6660,0],[139.7190,35.6710,0],[139.7130,35.6710,0],[139.7130,35.6660,0]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "vertiport-central", "name": "Central Operations Base", "type": "vertiport" },
+      "geometry": { "type": "Point", "coordinates": [139.70625,35.6625,20] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "vertiport-west", "name": "West Logistics Base", "type": "vertiport" },
+      "geometry": { "type": "Point", "coordinates": [139.6825,35.6510,20] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "incident-route-deviation-1", "name": "Deterministic Route Deviation", "type": "incident_site", "incidentType": "ROUTE_DEVIATION", "triggerAtSeconds": 35, "targetDroneIndex": 4, "severity": "HIGH" },
+      "geometry": { "type": "Point", "coordinates": [139.7092,35.6642,52] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "shibuya-local-analysis-600m", "name": "600m Detailed Analysis Area", "type": "local_analysis_area", "detailCoverage": "Current terrain and Building Dataset" },
+      "geometry": { "type": "Polygon", "coordinates": [[[139.7029,35.6598,0],[139.7096,35.6598,0],[139.7096,35.6652,0],[139.7029,35.6652,0],[139.7029,35.6598,0]]] }
+    }
+  ]
+}
