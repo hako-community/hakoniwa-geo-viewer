@@ -995,17 +995,33 @@ function initializeUi() {
         demoStepCount += 1;
         const elapsedSeconds = Math.max(0, (performance.now() - demoStartedAtMilliseconds) / 1_000);
 
+function setThreeDroneVisible(vDrone, visible) {
+  if (!vDrone) return;
+  if (vDrone.root?.object3d) vDrone.root.object3d.visible = visible;
+  if (vDrone.visualRoot) vDrone.visualRoot.visible = visible;
+  if (vDrone.model?.object3d) vDrone.model.object3d.visible = visible;
+  if (vDrone.operationalVisualization) {
+    if (vDrone.operationalVisualization.marker) vDrone.operationalVisualization.marker.visible = visible;
+    if (vDrone.operationalVisualization.beacon) vDrone.operationalVisualization.beacon.visible = visible;
+    if (vDrone.operationalVisualization.trailLine) vDrone.operationalVisualization.trailLine.visible = visible;
+  }
+}
+
         if (isR7 && wideAreaScenario && !localPresentationMode) {
           const updatedDrones = wideAreaScenario.sample(elapsedSeconds);
           if (viewer && typeof viewer.getDrones === 'function') {
             viewer.getDrones().forEach((vDrone, idx) => {
               const state = updatedDrones[idx];
-              if (!state) return;
-              vDrone.applyState?.({
-                rosPos: state.positionRos,
-                rosRpyDeg: state.rpyDeg,
-                rotorSpeedsRadPerSec: [60, 60, 60, 60],
-              });
+              if (state) {
+                setThreeDroneVisible(vDrone, true);
+                vDrone.applyState?.({
+                  rosPos: state.positionRos,
+                  rosRpyDeg: state.rpyDeg,
+                  rotorSpeedsRadPerSec: [60, 60, 60, 60],
+                });
+              } else {
+                setThreeDroneVisible(vDrone, false);
+              }
             });
           }
           flightStateStore.updateDrones(updatedDrones, {
@@ -1102,17 +1118,20 @@ function initializeUi() {
           };
         });
 
-        // Three.js インスタンスへの正規適用 (applyState を使用)
+        // Three.js インスタンスへの正規適用 (applyState を使用 & 未使用機体を非表示)
         if (viewer && typeof viewer.getDrones === 'function') {
           const vDrones = viewer.getDrones();
           vDrones.forEach((vDrone, idx) => {
             if (idx < updatedDrones.length) {
               const u = updatedDrones[idx];
+              setThreeDroneVisible(vDrone, true);
               vDrone.applyState?.({
                 rosPos: u.positionRos,
                 rosRpyDeg: u.rpyDeg,
                 rotorSpeedsRadPerSec: [60, 60, 60, 60],
               });
+            } else {
+              setThreeDroneVisible(vDrone, false);
             }
           });
         }
@@ -1719,6 +1738,16 @@ function initializeUi() {
         flightStateStore.updateDrones(initialStates, {
           source: isR7 ? scenarioRuntime.scenarioMode : 'viewer-initialize',
         });
+        if (viewer && typeof viewer.getDrones === 'function') {
+          const vDrones = viewer.getDrones();
+          vDrones.forEach((vDrone, idx) => {
+            if (idx < initialStates.length) {
+              setThreeDroneVisible(vDrone, true);
+            } else {
+              setThreeDroneVisible(vDrone, false);
+            }
+          });
+        }
         viewer.setFollowSelectedEnabled(followMode);
         const selectedId = flightStateStore.getSnapshot().selectedDroneId;
         if (selectedId && followMode) viewer.focusDroneById(selectedId);

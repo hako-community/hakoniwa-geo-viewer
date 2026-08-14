@@ -62,6 +62,126 @@ function computePathLengths(points) {
   return lengths;
 }
 
+function createDroneMarkerIconDataUrl(label, isSelected, altM) {
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return '';
+
+    const color = isSelected ? '#ffd23f' : '#22d3ee';
+
+    // 背景の暗い丸
+    ctx.fillStyle = 'rgba(3, 12, 20, 0.85)';
+    ctx.beginPath();
+    ctx.arc(64, 46, 38, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 外側リング (ポイントマーカー)
+    ctx.strokeStyle = color;
+    ctx.lineWidth = isSelected ? 4 : 3;
+    ctx.beginPath();
+    ctx.arc(64, 46, 32, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // 十字クロスヘア
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(64, 18); ctx.lineTo(64, 74);
+    ctx.moveTo(36, 46); ctx.lineTo(92, 46);
+    ctx.stroke();
+
+    // ドローン機体 (4枚ローター＋アーム＋ボディ)
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(48, 30); ctx.lineTo(80, 62);
+    ctx.moveTo(80, 30); ctx.lineTo(48, 62);
+    ctx.stroke();
+
+    const rotors = [[48, 30], [80, 30], [48, 62], [80, 62]];
+    ctx.fillStyle = color;
+    rotors.forEach(([rx, ry]) => {
+      ctx.beginPath();
+      ctx.arc(rx, ry, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    });
+
+    // センターボディ
+    ctx.fillStyle = isSelected ? '#ffffff' : '#030c14';
+    ctx.beginPath();
+    ctx.arc(64, 46, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // ラベルバッジ
+    ctx.fillStyle = 'rgba(3, 12, 20, 0.9)';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    if (typeof ctx.roundRect === 'function') {
+      ctx.roundRect(14, 88, 100, 32, 6);
+    } else {
+      ctx.rect(14, 88, 100, 32);
+    }
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 15px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const altText = Number.isFinite(altM) ? ` ${Math.round(altM)}m` : '';
+    ctx.fillText(`D${label}${altText}`, 64, 104);
+
+    return canvas.toDataURL();
+  } catch (err) {
+    return '';
+  }
+}
+
+function createGroundPointIconDataUrl(isSelected) {
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return '';
+
+    const color = isSelected ? '#ffd23f' : '#22d3ee';
+
+    ctx.fillStyle = 'rgba(3, 12, 20, 0.75)';
+    ctx.beginPath();
+    ctx.arc(32, 32, 24, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(32, 32, 18, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(32, 8); ctx.lineTo(32, 56);
+    ctx.moveTo(8, 32); ctx.lineTo(56, 32);
+    ctx.stroke();
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(32, 32, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    return canvas.toDataURL();
+  } catch (err) {
+    return '';
+  }
+}
+
 function safeSetPathEntityPoints(entity, points) {
   if (!entity || !Array.isArray(points) || points.length === 0) return;
 
@@ -89,6 +209,27 @@ function safeSetPathEntityPoints(entity, points) {
   }
 }
 
+function safeAddImagePin(pinEntity, imageUrl, fallbackText, geoPosition, options = {}) {
+  if (!pinEntity || !geoPosition) return null;
+  try {
+    if (imageUrl && typeof pinEntity.addImagePin === 'function') {
+      return pinEntity.addImagePin(imageUrl, geoPosition, options);
+    }
+    if (typeof pinEntity.addTextPin === 'function') {
+      return pinEntity.addTextPin(fallbackText || 'Drone', geoPosition, options);
+    }
+    if (typeof pinEntity.addPin === 'function') {
+      return pinEntity.addPin(geoPosition, options);
+    }
+  } catch (err) {
+    if (typeof pinEntity.addTextPin === 'function') {
+      try { return pinEntity.addTextPin(fallbackText || 'Drone', geoPosition, options); } catch (e) {}
+    }
+  }
+  safeSetEntityPosition(pinEntity, geoPosition);
+  return pinEntity;
+}
+
 export async function createMaprayLayer(
   containerElem,
   geoOrigin,
@@ -112,6 +253,10 @@ export class MaprayLayer {
     this.ready = false;
     this.droneEntities = new Map();
     this.droneEntries = new Map();
+    this.dronePointEntities = new Map();
+    this.droneGroundPointEntities = new Map();
+    this.droneGroundEntries = new Map();
+    this.droneStalkEntities = new Map();
     this.trajectoryEntities = new Map();
     this.droneHistories = new Map();
     this.collisionEntities = new Map();
@@ -156,7 +301,12 @@ export class MaprayLayer {
     this.selectedDroneId = nextId;
     for (const [id, entity] of this.droneEntities) {
       const selected = String(id) === this.selectedDroneId;
-      entity.setSize?.(selected ? [42, 42] : [32, 32]);
+      entity.setSize?.(selected ? [28, 28] : [20, 20]);
+    }
+    for (const [id, stalkEntity] of this.droneStalkEntities) {
+      const selected = String(id) === this.selectedDroneId;
+      stalkEntity.setColor?.(selected ? [1.0, 0.9, 0.2] : [0.2, 0.8, 1.0]);
+      stalkEntity.setLineWidth?.(selected ? 3 : 2);
     }
     for (const [id, trajEntity] of this.trajectoryEntities) {
       const selected = String(id) === this.selectedDroneId;
@@ -566,12 +716,20 @@ export class MaprayLayer {
           Number(coordinate[2] || 0) + Number(this.geoOrigin.altitude || 0)
             + Number(this.geoOrigin.z_offset || 0),
         );
+        const pinLabel = feature.properties?.name || type;
         if (typeof pin.addTextPin === 'function') {
-          pin.addTextPin(`${labelPrefix} ${feature.properties?.name || type}`, position);
+          const pinColor = type === 'incident_site'
+            ? [1.0, 0.2, 0.1]
+            : (type === 'landmark' ? [1.0, 0.8, 0.2] : [0.1, 0.6, 0.9]);
+          pin.addTextPin(pinLabel, position, {
+            bg_color: pinColor,
+            fg_color: [1.0, 1.0, 1.0],
+            font_size: 11,
+          });
         } else {
           safeSetEntityPosition(pin, position);
         }
-        pin.setSize?.(type === 'incident_site' ? [44, 44] : (type === 'landmark' ? [42, 42] : [36, 36]));
+        pin.setSize?.(type === 'incident_site' ? [28, 28] : [22, 22]);
         pin.setPickable?.(false);
         scene.addEntity(pin);
         this.opsPointEntities.push(pin);
@@ -659,26 +817,60 @@ export class MaprayLayer {
 
     const scene = this.viewer.viewer?.scene || this.viewer.scene;
     const geoPosition = new window.mapray.GeoPoint(longitude, latitude, altitude);
+    const isSelected = strId === this.selectedDroneId;
+    
+    // 短い表示ラベル (例: "Drone-A" -> "A", "0" -> "0")
+    const shortLabel = strId.replace(/^Drone[-_]?/i, '') || strId;
+    const pinBgColor = isSelected ? [1.0, 0.85, 0.0] : [0.0, 0.65, 0.92];
+    const pinFgColor = isSelected ? [0.05, 0.05, 0.05] : [1.0, 1.0, 1.0];
+
+    // 1. 空中ドローン機体ピン (PinEntity: コンパクトな識別マーカー)
     let entity = this.droneEntities.get(strId);
     if (!entity) {
       entity = new window.mapray.PinEntity(scene);
       entity.altitude_mode = window.mapray.AltitudeMode.ABSOLUTE;
       if (typeof entity.addTextPin === 'function') {
-        const entry = entity.addTextPin(strId, geoPosition);
+        const entry = entity.addTextPin(shortLabel, geoPosition, {
+          bg_color: pinBgColor,
+          fg_color: pinFgColor,
+          font_size: 11,
+        });
         this.droneEntries.set(strId, entry);
       } else {
         safeSetEntityPosition(entity, geoPosition);
       }
-      entity.setSize?.([32, 32]);
+      entity.setSize?.(isSelected ? [28, 28] : [20, 20]);
       if (typeof entity.setPickable === 'function') {
         entity.setPickable(true);
       }
       scene.addEntity(entity);
       this.droneEntities.set(strId, entity);
     } else {
-      safeSetEntityPosition(this.droneEntries.get(strId) || entity, geoPosition);
+      const entry = this.droneEntries.get(strId) || entity;
+      safeSetEntityPosition(entry, geoPosition);
+      entity.setSize?.(isSelected ? [28, 28] : [20, 20]);
     }
 
+    // 2. ドローン高度ドロップライン (Stalk Line: 地面から現在位置への垂直線)
+    const LineEntityClass = window.mapray.MarkerLineEntity || window.mapray.PathEntity;
+    const groundAlt = Number(this.geoOrigin.altitude || 0) + Number(this.geoOrigin.z_offset || 0);
+    let stalkEntity = this.droneStalkEntities.get(strId);
+    if (!stalkEntity && LineEntityClass) {
+      stalkEntity = new LineEntityClass(scene);
+      stalkEntity.altitude_mode = window.mapray.AltitudeMode.ABSOLUTE;
+      stalkEntity.setColor?.(isSelected ? [1.0, 0.9, 0.2] : [0.2, 0.8, 1.0]);
+      stalkEntity.setLineWidth?.(isSelected ? 3 : 2);
+      scene.addEntity(stalkEntity);
+      this.droneStalkEntities.set(strId, stalkEntity);
+    }
+    if (stalkEntity) {
+      safeSetPathEntityPoints(stalkEntity, [
+        longitude, latitude, groundAlt,
+        longitude, latitude, altitude
+      ]);
+    }
+
+    // 3. 軌跡更新
     this._updateTrajectoryEntity(strId, history, historyChanged);
 
     return geo;

@@ -142,7 +142,19 @@ MAPRAY_API_KEY=your-mapray-api-key
 http://localhost:18080/hakoniwa-geo-viewer/src/client/index.html?scenarioConfig=/hakoniwa-geo-viewer/config/viewer-config-shibuya.json&threejsRoot=/hakoniwa-web3d-drone
 ```
 
-東京タワー5kmシナリオ:
+東京タワー5km比較デモ（Mapray vs PLATEAU 3D Tiles 上下比較）:
+
+ワンライナー起動スクリプト:
+```powershell
+.\scripts\windows\start_5km_comparison_demo.ps1
+```
+
+ブラウザURL:
+```text
+http://localhost:18080/hakoniwa-geo-viewer/src/client/index.html?scenarioConfig=/hakoniwa-geo-viewer/config/viewer-config-tokyo-tower-5km.json&threejsRoot=/hakoniwa-web3d-drone&scenarioMode=fixture&fleetSize=10
+```
+
+東京タワー30機フリートシナリオ:
 
 ```text
 http://localhost:18080/hakoniwa-geo-viewer/src/client/index.html?scenarioConfig=/hakoniwa-geo-viewer/config/viewer-config-tokyo-tower.json&threejsRoot=/hakoniwa-web3d-drone&scenarioMode=fixture&fleetSize=30&seed=20260811
