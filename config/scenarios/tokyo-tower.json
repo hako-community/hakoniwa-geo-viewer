@@ -13,6 +13,10 @@
   "paths": {
     "geoOrigin": "../geo-origin-tokyo-tower.json",
     "mapray": "../mapray-tokyo-tower.json",
+    "runtimeManifest": "../../runtime-assets/tokyo-tower/manifest.json",
+    "terrainGrid": "../../runtime-assets/tokyo-tower/terrain-grid.json",
+    "buildings": "../../runtime-assets/tokyo-tower/buildings.xml",
+    "buildingsLod1": "../../runtime-assets/tokyo-tower/buildings-lod1.json",
     "operationsLayer": "../operations/tokyo-tower-wide-area-5km.geojson"
   },
   "coverage": {
@@ -28,8 +32,8 @@
       "widthM": 600,
       "heightM": 600,
       "selectionHalfExtentM": 320,
-      "dataStatus": "planned",
-      "display": "Minato PLATEAU terrain/LOD1/MuJoCo assets are not generated yet"
+      "dataStatus": "ready",
+      "display": "Minato 2025 PLATEAU DEM/LOD1 + MuJoCo collision proxy"
     }
   },
   "web3d": {

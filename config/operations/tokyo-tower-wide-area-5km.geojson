@@ -3,7 +3,7 @@
   "name": "Tokyo Tower 5km Fleet Operations Stage 1",
   "properties": {
     "scenarioId": "tokyo-tower-wide-area-5km",
-    "detailCoverage": "The 600m local terrain and MuJoCo assets are planned but not generated",
+    "detailCoverage": "Minato 2025 PLATEAU DEM/LOD1 and MuJoCo collision proxy are ready for the 600m local area",
     "wideAreaCoverage": "Mapray standard map/DEM, public PLATEAU B3D, and public PLATEAU 3D Tiles",
     "notice": "Routes, bases, restricted zone, and incident are fictional demonstration data"
   },
@@ -50,7 +50,7 @@
     },
     {
       "type": "Feature",
-      "properties": { "id": "tokyo-tower-local-analysis-600m", "name": "600m Tokyo Tower Analysis Area (planned)", "type": "local_analysis_area", "detailCoverage": "Minato terrain, LOD1, and MuJoCo conversion pending", "dataStatus": "planned" },
+      "properties": { "id": "tokyo-tower-local-analysis-600m", "name": "600m Tokyo Tower Analysis Area", "type": "local_analysis_area", "detailCoverage": "Minato 2025 PLATEAU DEM/LOD1 and MuJoCo collision proxy", "dataStatus": "ready" },
       "geometry": { "type": "Polygon", "coordinates": [[[139.742116,35.655886,0],[139.748750,35.655886,0],[139.748750,35.661276,0],[139.742116,35.661276,0],[139.742116,35.655886,0]]] }
     },
     {

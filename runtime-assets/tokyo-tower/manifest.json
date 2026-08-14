@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "tokyo-tower",
+  "generatedAt": "2026-08-14T05:56:12.5875479Z",
+  "coordinateContract": {
+    "frame": "mujoco_x_north_y_minus_east_z_up",
+    "rows": 257,
+    "columns": 257,
+    "xMinM": -300.0,
+    "xMaxM": 300.0,
+    "yMinM": -300.0,
+    "yMaxM": 300.0,
+    "zBaselineM": 4.9,
+    "threeModelHeight": "modelHeightsM",
+    "mujocoModelHeight": "modelHeightsM",
+    "maprayAbsoluteHeight": "modelHeightsM + zBaselineM"
+  },
+  "files": [
+    {
+      "path": "terrain-grid.json",
+      "bytes": 1219063,
+      "sha256": "39c633dfbec9a10ca855cbf813df0b97b5961f64f86f4f8387f2b1f52f8f20ee",
+      "sourceRelativePath": "runtime/windows/generated/tokyo-tower/terrain-grid.json"
+    },
+    {
+      "path": "buildings.xml",
+      "bytes": 464259,
+      "sha256": "a7ba562f13f8cfe14130417f4a0927c7024dcde7737916a800c2c9ee5fbae0db",
+      "sourceRelativePath": "runtime/windows/generated/tokyo-tower/buildings.xml"
+    },
+    {
+      "path": "buildings-lod1.json",
+      "bytes": 177417,
+      "sha256": "f9390feae2b12298d458e0d121bdaaa4fb6e28553776598aeda9a17b17973ba2",
+      "sourceRelativePath": "runtime/windows/generated/tokyo-tower/buildings-lod1.json"
+    },
+    {
+      "path": "city-pipeline-manifest.json",
+      "bytes": 3144,
+      "sha256": "11d24ffe21344f328fd020ff23e62099a08ae78e77ad08996f816203208e8bf4",
+      "sourceRelativePath": "runtime/windows/generated/tokyo-tower/manifest.json"
+    },
+    {
+      "path": "terrain-source-manifest.json",
+      "bytes": 8383,
+      "sha256": "6483ae92200d1e7fb0c035d9ce4510fb107c667b612c2d39fd6fad8e24e36fbd",
+      "sourceRelativePath": "runtime/windows/generated/tokyo-tower/terrain-manifest.json"
+    }
+  ]
+}
