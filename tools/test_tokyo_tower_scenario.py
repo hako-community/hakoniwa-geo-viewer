@@ -120,6 +120,11 @@ class TokyoTowerScenarioContractTest(unittest.TestCase):
         self.assertEqual(1, len(by_type["local_analysis_area"]))
         self.assertEqual(1, len(by_type["incident_site"]))
         self.assertEqual(1, len(by_type["landmark"]))
+        local_area = by_type["local_analysis_area"][0]["properties"]
+        self.assertEqual("ready", local_area["dataStatus"])
+        self.assertNotIn("planned", local_area["name"].lower())
+        self.assertNotIn("pending", local_area["detailCoverage"].lower())
+        self.assertNotIn("pending", operations["properties"]["detailCoverage"].lower())
 
         boundary = next(
             feature for feature in by_type["geofence"]
