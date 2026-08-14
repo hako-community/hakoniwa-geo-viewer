@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "scenarioConfigPath": "./scenarios/tokyo-tower.json",
+  "web3d": {
+    "root": "/third_party/hakoniwa-web3d-drone",
+    "viewerConfigName": "viewer-config-legacy.json",
+    "sceneConfigPath": "./web3d-scene-tokyo-tower.json",
+    "fixtureSceneConfigPath": "./web3d-scene-tokyo-tower-r7-fleet-fixture.json"
+  }
+}

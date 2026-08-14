@@ -64,12 +64,12 @@
         "gridDivisions": 20
       },
       "sources": [
-        { "id": "13103-minato", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13103-bldg-lod1-texture-latest/tileset.json" },
-        { "id": "13104-shinjuku", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13104-bldg-lod1-texture-latest/tileset.json" },
-        { "id": "13109-shinagawa", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13109-bldg-lod1-texture-latest/tileset.json" },
-        { "id": "13110-meguro", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13110-bldg-lod1-texture-latest/tileset.json" },
-        { "id": "13112-setagaya", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13112-bldg-lod1-texture-latest/tileset.json" },
-        { "id": "13113-shibuya", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13113-bldg-lod1-texture-latest/tileset.json" }
+        { "id": "13103-minato", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13103-bldg-lod1-latest/tileset.json" },
+        { "id": "13104-shinjuku", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13104-bldg-lod1-latest/tileset.json" },
+        { "id": "13109-shinagawa", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13109-bldg-lod1-latest/tileset.json" },
+        { "id": "13110-meguro", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13110-bldg-lod1-latest/tileset.json" },
+        { "id": "13112-setagaya", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13112-bldg-lod1-latest/tileset.json" },
+        { "id": "13113-shibuya", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13113-bldg-lod1-latest/tileset.json" }
       ]
     },
     {

@@ -1,0 +1,29 @@
+{
+  "sdkVersion": "0.9.6",
+  "buildingSourceMode": "public-wide",
+  "publicBuildingTilePrefixes": [
+    "https://opentiles.mapray.com/3dcity/533935/",
+    "https://opentiles.mapray.com/3dcity/533936/",
+    "https://opentiles.mapray.com/3dcity/533945/",
+    "https://opentiles.mapray.com/3dcity/533946/"
+  ],
+  "buildingTileAttributions": [
+    {
+      "display": "Project PLATEAU",
+      "link": "https://www.mlit.go.jp/plateau/"
+    }
+  ],
+  "buildingDatasetIds": [],
+  "camera": {
+    "latitude": 35.658581,
+    "longitude": 139.745433,
+    "height": 700.0,
+    "lookAtHeight": 20.0,
+    "horizontalDistanceM": 450.0,
+    "minimumHorizontalDistanceM": 120.0
+  },
+  "collision": {
+    "normalLengthMeters": 5.0,
+    "maxMarkers": 100
+  }
+}

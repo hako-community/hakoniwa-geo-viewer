@@ -1,0 +1,62 @@
+{
+  "type": "FeatureCollection",
+  "name": "Tokyo Tower 5km Fleet Operations Stage 1",
+  "properties": {
+    "scenarioId": "tokyo-tower-wide-area-5km",
+    "detailCoverage": "The 600m local terrain and MuJoCo assets are planned but not generated",
+    "wideAreaCoverage": "Mapray standard map/DEM, public PLATEAU B3D, and public PLATEAU 3D Tiles",
+    "notice": "Routes, bases, restricted zone, and incident are fictional demonstration data"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "id": "route-west-east", "name": "Azabu-Shimbashi Patrol", "type": "planned_route", "minAltitudeM": 45, "maxAltitudeM": 90, "maxDeviationM": 120, "cycleSeconds": 780, "targetSpeedMps": 12.0, "color": "#00bfff" },
+      "geometry": { "type": "LineString", "coordinates": [[139.7210,35.6540,55],[139.7330,35.6570,60],[139.745433,35.658581,65],[139.7580,35.6610,60],[139.7690,35.6650,55],[139.7580,35.6610,60],[139.745433,35.658581,65],[139.7330,35.6570,60],[139.7210,35.6540,55]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "route-north-south", "name": "Akasaka-Shibaura Patrol", "type": "planned_route", "minAltitudeM": 50, "maxAltitudeM": 100, "maxDeviationM": 120, "cycleSeconds": 800, "targetSpeedMps": 12.0, "color": "#9b7cff" },
+      "geometry": { "type": "LineString", "coordinates": [[139.7410,35.6780,70],[139.7440,35.6685,65],[139.745433,35.658581,60],[139.7465,35.6480,65],[139.7490,35.6385,70],[139.7465,35.6480,65],[139.745433,35.658581,60],[139.7440,35.6685,65],[139.7410,35.6780,70]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "route-ring", "name": "Tokyo Tower Outer Ring", "type": "planned_route", "minAltitudeM": 55, "maxAltitudeM": 110, "maxDeviationM": 140, "cycleSeconds": 1100, "targetSpeedMps": 12.0, "color": "#22c55e" },
+      "geometry": { "type": "LineString", "coordinates": [[139.7260,35.6710,75],[139.7450,35.6780,80],[139.7650,35.6700,75],[139.7670,35.6500,80],[139.7460,35.6400,75],[139.7250,35.6480,80],[139.7260,35.6710,75]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "tokyo-tower-5km-operational-boundary", "name": "5km Operational Boundary", "type": "geofence", "rule": "containment", "minAltitudeM": 35, "maxAltitudeM": 120 },
+      "geometry": { "type": "Polygon", "coordinates": [[[139.717793,35.636124,0],[139.773073,35.636124,0],[139.773073,35.681038,0],[139.717793,35.681038,0],[139.717793,35.636124,0]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "restricted-zone-northeast", "name": "Simulated Northeast No-Fly Zone", "type": "geofence", "rule": "exclusion", "minAltitudeM": 0, "maxAltitudeM": 150, "fictional": true },
+      "geometry": { "type": "Polygon", "coordinates": [[[139.7570,35.6680,0],[139.7640,35.6680,0],[139.7640,35.6740,0],[139.7570,35.6740,0],[139.7570,35.6680,0]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "vertiport-southwest", "name": "Southwest Demo Base", "type": "vertiport", "fictional": true },
+      "geometry": { "type": "Point", "coordinates": [139.7280,35.6460,20] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "vertiport-east", "name": "East Demo Base", "type": "vertiport", "fictional": true },
+      "geometry": { "type": "Point", "coordinates": [139.7650,35.6570,20] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "incident-route-deviation-1", "name": "Deterministic Route Deviation", "type": "incident_site", "incidentType": "ROUTE_DEVIATION", "triggerAtSeconds": 35, "targetDroneIndex": 4, "severity": "HIGH", "fictional": true },
+      "geometry": { "type": "Point", "coordinates": [139.7515,35.6625,52] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "tokyo-tower-local-analysis-600m", "name": "600m Tokyo Tower Analysis Area (planned)", "type": "local_analysis_area", "detailCoverage": "Minato terrain, LOD1, and MuJoCo conversion pending", "dataStatus": "planned" },
+      "geometry": { "type": "Polygon", "coordinates": [[[139.742116,35.655886,0],[139.748750,35.655886,0],[139.748750,35.661276,0],[139.742116,35.661276,0],[139.742116,35.655886,0]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "tokyo-tower-landmark", "name": "Tokyo Tower", "type": "landmark" },
+      "geometry": { "type": "Point", "coordinates": [139.745433,35.658581,333] }
+    }
+  ]
+}

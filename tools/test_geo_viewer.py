@@ -25,7 +25,7 @@ class GeoViewerContractTest(unittest.TestCase):
         self.assertIn('id="three-root"', html)
         self.assertIn("new URL('./src/ui.js'", html)
         self.assertIn("await import(uiModuleUrl.href)", html)
-        self.assertIn("phase-e-20260813-13", html)
+        self.assertIn("phase-e-20260813-14", html)
         self.assertIn('"3d-tiles-renderer"', html)
         self.assertIn('"3d-tiles-renderer/gltf-cesium-rtc"', html)
         self.assertIn('id="benchmark-start-btn"', html)
@@ -133,7 +133,10 @@ class GeoViewerContractTest(unittest.TestCase):
         self.assertIn("this.viewer.setCameraPosition(cameraPosition)", layer)
         self.assertIn("this.viewer.setLookAtPosition(lookAtPosition, 0)", layer)
         self.assertIn("horizontalDistanceM / 111_320", layer)
-        self.assertIn("mapray_layer.js?v=oom-20260811-1", self.read("src/client/src/ui.js"))
+        self.assertIn(
+            "mapray_layer.js?v=phase-e-20260813-14",
+            self.read("src/client/src/ui.js"),
+        )
         self.assertNotIn(
             "this.viewer.setCameraPosition(safeLat, safeLon", layer
         )

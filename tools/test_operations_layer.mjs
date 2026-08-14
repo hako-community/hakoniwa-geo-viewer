@@ -41,15 +41,21 @@ const geojson = {
       properties: { id: 'route-1', type: 'planned_route', maxDeviationM: 15 },
       geometry: { type: 'LineString', coordinates: [[139.0, 35.0005], [139.001, 35.0005]] },
     },
+    {
+      type: 'Feature',
+      properties: { id: 'landmark', type: 'landmark' },
+      geometry: { type: 'Point', coordinates: [139.0005, 35.0005, 100] },
+    },
   ],
 };
 
 const normalized = normalizeOperationsData(geojson);
-assert.equal(normalized.featureCollection.features.length, 4);
+assert.equal(normalized.featureCollection.features.length, 5);
 assert.equal(normalized.geofences.length, 2);
 assert.equal(normalized.restrictedZones.length, 1);
 assert.equal(normalized.vertiports.length, 1);
 assert.equal(normalized.plannedRoutes.length, 1);
+assert.equal(normalized.landmarks.length, 1);
 assert.deepEqual(getOperationsExtent(normalized), {
   west: 139.0,
   south: 35.0,
@@ -62,6 +68,7 @@ const model = new OperationsLayerModel();
 assert.deepEqual(model.loadGeoJSON(geojson), normalized);
 assert.equal(model.getSummary().geofencesCount, 2);
 assert.equal(model.getSummary().restrictedZonesCount, 1);
+assert.equal(model.getSummary().landmarksCount, 1);
 
 const origin = { longitude: 139.0, latitude: 35.0 };
 const outsideEvents = evaluateFlightRules({

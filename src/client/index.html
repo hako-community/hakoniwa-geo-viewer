@@ -244,6 +244,12 @@
   <div id="main-container">
     <div id="panel">
       <div id="scenario-mode-status">MODE / fleet / seed</div><br>
+      <div style="margin-bottom:8px;">
+        <label for="location-select"><strong>Location</strong></label><br>
+        <select id="location-select" style="width:100%;">
+          <option>loading...</option>
+        </select>
+      </div>
       <div class="prop-box" id="phase-d-evaluation-panel" hidden>
         <strong>Phase D A/B evaluation</strong>
         <div id="phase-d-evaluation-trial" style="margin-top:4px;font-size:11px;">loading...</div>
@@ -481,7 +487,7 @@
     const pduStatus = document.getElementById('connection-status');
     if (pduStatus) pduStatus.textContent = 'PDU: ui.jsを読み込み中...';
     const uiModuleUrl = new URL('./src/ui.js', window.location.href);
-    uiModuleUrl.searchParams.set('v', 'phase-e-20260813-13');
+    uiModuleUrl.searchParams.set('v', 'phase-e-20260813-14');
     try {
       await import(uiModuleUrl.href);
     } catch (error) {

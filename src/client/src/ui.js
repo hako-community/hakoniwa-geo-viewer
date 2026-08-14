@@ -1,13 +1,14 @@
 import { HakoniwaFrame } from './frame.js?v=w6-20260808-9';
 import { loadGeoOrigin } from './geo_origin.js?v=w6-20260808-9';
-import { createMaprayLayer, loadMaprayConfig } from './mapray_layer.js?v=oom-20260811-1';
+import { createMaprayLayer, loadMaprayConfig } from './mapray_layer.js?v=phase-e-20260813-14';
 import { CollisionEventTracker } from './collision_events.mjs?v=w6-20260808-9';
 import { loadTerrainHeightSampler } from './terrain_height.mjs?v=r1-20260809-1';
-import { loadViewerScenarioConfig } from './scenario_config.mjs?v=r2-20260809-1';
+import { loadViewerScenarioConfig } from './scenario_config.mjs?v=phase-e-20260813-14';
+import { setupLocationSelector } from './location_selector.mjs?v=phase-e-20260813-1';
 import { FlightStateStore } from './flight_state_store.mjs?v=r4-20260809-1';
 import { evaluateFlightRules } from './flight_rules.mjs?v=r8-20260811-1';
 import { generateFleetSyntheticData } from './fleet_manager.mjs?v=r8-20260811-1';
-import { getOperationsExtent, normalizeOperationsData } from './operations_layer.mjs?v=c1-20260811-1';
+import { getOperationsExtent, normalizeOperationsData } from './operations_layer.mjs?v=phase-e-20260813-14';
 import { parseScenarioRuntimeOptions } from './scenario_runtime.mjs?v=r8-20260811-1';
 import { createWideAreaScenario } from './wide_area_scenario.mjs?v=c1-20260811-1';
 import {
@@ -305,6 +306,18 @@ function renderLeafletOperationsData(geojsonData) {
         }),
         `[INCIDENT] ${feature.properties?.name || 'Incident site'}`,
       );
+    } else if (feature.properties?.type === 'landmark' && feature.geometry?.type === 'Point') {
+      const coordinate = feature.geometry.coordinates;
+      add(
+        L.circleMarker([coordinate[1], coordinate[0]], {
+          radius: 9,
+          color: '#713f12',
+          fillColor: '#facc15',
+          fillOpacity: 0.95,
+          weight: 3,
+        }),
+        `[LANDMARK] ${feature.properties?.name || 'Landmark'}`,
+      );
     }
   }
 }
@@ -434,6 +447,7 @@ function initializeUi() {
   const connectionStatus = document.getElementById('connection-status');
   const environmentStatus = document.getElementById('environment-status');
   const scenarioModeStatus = document.getElementById('scenario-mode-status');
+  const locationSelect = document.getElementById('location-select');
   const benchmarkWarmupInput = document.getElementById('benchmark-warmup-sec');
   const benchmarkDurationInput = document.getElementById('benchmark-duration-sec');
   const benchmarkStartBtn = document.getElementById('benchmark-start-btn');
@@ -649,6 +663,11 @@ function initializeUi() {
     scenarioModeStatus.textContent = `${scenarioRuntime.displayLabel} / ${scenarioRuntime.fleetSize}機 / seed ${scenarioRuntime.seed}`;
     scenarioModeStatus.dataset.scenarioMode = scenarioRuntime.scenarioMode;
   }
+  setupLocationSelector(
+    locationSelect,
+    window.location.href,
+    (url) => window.location.assign(url),
+  );
 
   window.__hakoniwaDiagnostics = () => {
     const snapshot = flightStateStore.getSnapshot();
@@ -1166,6 +1185,16 @@ function initializeUi() {
         wideArea: { ...scenarioCoverage.wideArea, ...(scenario.coverage?.wideArea || {}) },
         localDetail: { ...scenarioCoverage.localDetail, ...(scenario.coverage?.localDetail || {}) },
       };
+      if (focusWideAreaBtn) focusWideAreaBtn.textContent = scenarioCoverage.wideArea.label;
+      if (focusLocalAreaBtn) {
+        focusLocalAreaBtn.textContent = scenarioCoverage.localDetail.label;
+        focusLocalAreaBtn.title = scenarioCoverage.localDetail.dataStatus === 'ready'
+          ? scenarioCoverage.localDetail.display
+          : `${scenarioCoverage.localDetail.display}（下段は5km表示を維持します）`;
+      }
+      if (wideAreaStatus) {
+        wideAreaStatus.textContent = `${scenarioCoverage.wideArea.label}: ${scenarioCoverage.wideArea.display} / ${scenarioCoverage.localDetail.label}: ${scenarioCoverage.localDetail.dataStatus}`;
+      }
       const originConfig = await loadGeoOrigin(scenario.urls.geoOrigin);
       window.__hakoniwaScenario = scenario;
       geoOrigin = {
@@ -1176,7 +1205,10 @@ function initializeUi() {
       ORIGIN_LON = Number(geoOrigin.longitude);
       latInput.value = ORIGIN_LAT;
       lonInput.value = ORIGIN_LON;
-      terrainHeightSampler = await loadTerrainHeightSampler(scenario.urls.terrainGrid);
+      map.setView([ORIGIN_LAT, ORIGIN_LON], 16);
+      terrainHeightSampler = scenario.urls.terrainGrid
+        ? await loadTerrainHeightSampler(scenario.urls.terrainGrid)
+        : null;
 
       try {
         const opsRes = await fetch(scenario.urls.operationsLayer || DEFAULT_OPERATIONS_GEOJSON);
@@ -1231,7 +1263,7 @@ function initializeUi() {
           : resolveMaprayApiKey(),
         viewerScenarioPromise.then((value) => loadMaprayConfig(value.urls.mapray)),
       ]);
-      maprayConfig.terrainGridUrl = scenario.urls.terrainGrid;
+      if (scenario.urls.terrainGrid) maprayConfig.terrainGridUrl = scenario.urls.terrainGrid;
       maprayConfig.loadMode = getMaprayLoadMode();
       maprayConfig.buildingSourceMode = getMaprayBuildingSourceMode(
         maprayConfig.buildingSourceMode,
@@ -1293,12 +1325,15 @@ function initializeUi() {
   }
 
   function setThreeEnvironmentScope(scope) {
-    threeEnvironmentScope = scope === 'wide' ? 'wide' : 'local';
+    const localReady = scenarioCoverage.localDetail.dataStatus === 'ready';
+    threeEnvironmentScope = scope === 'local' && localReady ? 'local' : 'wide';
     viewer?.setEnvironmentScope?.(threeEnvironmentScope);
     if (!threeLocalStatus) return;
     if (threeEnvironmentScope === 'wide') {
-      threeLocalStatus.dataset.coverage = 'overview';
-      threeLocalStatus.textContent = 'WIDE 5km / PLATEAU LOD1 STREAMING';
+      threeLocalStatus.dataset.coverage = scope === 'local' && !localReady ? 'outside' : 'overview';
+      threeLocalStatus.textContent = scope === 'local' && !localReady
+        ? `WIDE 5km / ${scenarioCoverage.localDetail.label} DATA PREPARATION PENDING`
+        : 'WIDE 5km / PLATEAU LOD1 STREAMING';
     } else {
       threeLocalStatus.dataset.coverage = 'inside';
       threeLocalStatus.textContent = 'LOCAL 600m / PLATEAU LOD1 + MuJoCo';
@@ -1310,7 +1345,10 @@ function initializeUi() {
     const wide = viewer.getEnvironmentDiagnostics().find((item) => item.type === 'plateau-3dtiles');
     if (!wide) return;
     const error = wide.errorCount > 0 ? ` / ERR ${wide.errorCount}` : '';
-    threeLocalStatus.textContent = `WIDE 5km / PLATEAU LOD1 / ${wide.readySourceCount}/${wide.sourceCount} sources / ${wide.loadedModelCount} models / ${wide.visibleTileCount} visible${error}`;
+    const localPending = scenarioCoverage.localDetail.dataStatus !== 'ready'
+      ? ' / 600m DETAIL PENDING'
+      : '';
+    threeLocalStatus.textContent = `WIDE 5km / PLATEAU LOD1 / ${wide.readySourceCount}/${wide.sourceCount} sources / ${wide.loadedModelCount} models / ${wide.visibleTileCount} visible${error}${localPending}`;
     threeLocalStatus.dataset.coverage = wide.errorCount > 0 ? 'outside' : 'overview';
   }
   setInterval(updateThreeCoverageBadge, 1_000);
@@ -1475,10 +1513,11 @@ function initializeUi() {
           && modules.plateau3dTilesEnvironmentVersion >= 1
         ) {
           if (isR7) {
-            sceneConfigPath = new URL(
-              './web3d-scene-r7-fleet-fixture.json',
-              scenario.web3d.sceneConfigUrl,
-            ).toString();
+            sceneConfigPath = scenario.web3d.fixtureSceneConfigUrl
+              || new URL(
+                './web3d-scene-r7-fleet-fixture.json',
+                scenario.web3d.sceneConfigUrl,
+              ).toString();
           } else if (isR4) {
             sceneConfigPath = new URL(
               './web3d-scene-r4-selection-fixture.json',
@@ -1489,13 +1528,13 @@ function initializeUi() {
           }
 
           const versionedSceneConfigUrl = new URL(sceneConfigPath, window.location.href);
-          versionedSceneConfigUrl.searchParams.set('v', 'phase-e-20260813-13');
+          versionedSceneConfigUrl.searchParams.set('v', 'phase-e-20260813-14');
           sceneConfigPath = versionedSceneConfigUrl.toString();
           viewerConfig.config.three.sceneConfigPath = sceneConfigPath;
           if (environmentStatus) {
             environmentStatus.textContent = isR7
               ? `3D環境: PLATEAU LOD1 + fleet fixture (${scenarioRuntime.fleetSize}機) を読み込み中...`
-              : (isR4 ? '3D環境: R4 selection fixtureを読み込み中...' : '3D環境: Shibuya terrain + PLATEAU LOD1を読み込み中...');
+              : (isR4 ? '3D環境: R4 selection fixtureを読み込み中...' : `3D環境: ${scenario.displayName}を読み込み中...`);
           }
         } else if (modules.terrainGridEnvironmentVersion >= 1) {
           sceneConfigPath = new URL(

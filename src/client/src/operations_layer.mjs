@@ -18,6 +18,7 @@ export function normalizeOperationsData(geojsonData) {
   const vertiports = [];
   const incidentSites = [];
   const localAnalysisAreas = [];
+  const landmarks = [];
 
   for (const feature of features) {
     const type = feature.properties?.type;
@@ -32,6 +33,8 @@ export function normalizeOperationsData(geojsonData) {
       incidentSites.push(feature);
     } else if (type === 'local_analysis_area' && feature.geometry?.type === 'Polygon') {
       localAnalysisAreas.push(feature);
+    } else if (type === 'landmark' && feature.geometry?.type === 'Point') {
+      landmarks.push(feature);
     }
   }
 
@@ -43,6 +46,7 @@ export function normalizeOperationsData(geojsonData) {
     vertiports,
     incidentSites,
     localAnalysisAreas,
+    landmarks,
   };
 }
 
@@ -88,6 +92,7 @@ export class OperationsLayerModel {
     this.vertiports = [];
     this.incidentSites = [];
     this.localAnalysisAreas = [];
+    this.landmarks = [];
   }
 
   loadGeoJSON(geojsonData) {
@@ -98,6 +103,7 @@ export class OperationsLayerModel {
     this.vertiports = normalized.vertiports;
     this.incidentSites = normalized.incidentSites;
     this.localAnalysisAreas = normalized.localAnalysisAreas;
+    this.landmarks = normalized.landmarks;
     return normalized;
   }
 
@@ -144,6 +150,7 @@ export class OperationsLayerModel {
       vertiportsCount: this.vertiports.length,
       incidentSitesCount: this.incidentSites.length,
       localAnalysisAreasCount: this.localAnalysisAreas.length,
+      landmarksCount: this.landmarks.length,
     };
   }
 }

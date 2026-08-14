@@ -549,13 +549,15 @@ export class MaprayLayer {
         scene.addEntity(polygon);
         this.opsPolygonEntities.push(polygon);
       } else if (
-        ['vertiport', 'incident_site'].includes(feature.properties?.type)
+        ['vertiport', 'incident_site', 'landmark'].includes(feature.properties?.type)
         && feature.geometry?.type === 'Point'
       ) {
         const coordinate = feature.geometry.coordinates || [];
         if (!Number.isFinite(Number(coordinate[0])) || !Number.isFinite(Number(coordinate[1]))) continue;
         const type = feature.properties.type;
-        const labelPrefix = type === 'vertiport' ? '[BASE]' : '[INCIDENT]';
+        const labelPrefix = type === 'vertiport'
+          ? '[BASE]'
+          : (type === 'incident_site' ? '[INCIDENT]' : '[LANDMARK]');
         const pin = new window.mapray.PinEntity(scene);
         pin.altitude_mode = window.mapray.AltitudeMode.ABSOLUTE;
         const position = new window.mapray.GeoPoint(
@@ -569,7 +571,7 @@ export class MaprayLayer {
         } else {
           safeSetEntityPosition(pin, position);
         }
-        pin.setSize?.(type === 'incident_site' ? [44, 44] : [36, 36]);
+        pin.setSize?.(type === 'incident_site' ? [44, 44] : (type === 'landmark' ? [42, 42] : [36, 36]));
         pin.setPickable?.(false);
         scene.addEntity(pin);
         this.opsPointEntities.push(pin);
