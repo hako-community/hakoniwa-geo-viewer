@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { generateFleetSyntheticData, FleetManager } from '../src/client/src/fleet_manager.mjs';
-import { parseScenarioRuntimeOptions } from '../src/client/src/scenario_runtime.mjs';
+import {
+  buildExecutionSourceUrl,
+  describeExecutionSource,
+  parseScenarioRuntimeOptions,
+} from '../src/client/src/scenario_runtime.mjs';
 
 const defaults = parseScenarioRuntimeOptions('');
 assert.equal(defaults.scenarioMode, 'live');
@@ -20,6 +24,27 @@ assert.equal(fixture.displayLabel, 'SYNTHETIC FLEET');
 assert.equal(fixture.executionSource, 'browser-standalone');
 assert.equal(fixture.fleetSize, 30);
 assert.equal(fixture.seed, 42);
+assert.equal(describeExecutionSource(fixture).label, 'Browser Standalone');
+assert.equal(describeExecutionSource(fixture).requiresPdu, false);
+assert.equal(describeExecutionSource(coreKinematic).label, 'Hakoniwa Core / Kinematic');
+assert.equal(describeExecutionSource(coreKinematic).requiresPdu, true);
+
+const browserUrl = new URL(buildExecutionSourceUrl(
+  'browser-standalone',
+  'http://localhost:18080/viewer?scenarioMode=live&liveProfile=kinematic&fleetSize=30',
+));
+assert.equal(browserUrl.searchParams.get('scenarioMode'), 'fixture');
+assert.equal(browserUrl.searchParams.has('liveProfile'), false);
+assert.equal(browserUrl.searchParams.has('autoConnect'), false);
+assert.equal(browserUrl.searchParams.get('fleetSize'), '30');
+
+const coreUrl = new URL(buildExecutionSourceUrl(
+  'hakoniwa-core',
+  'http://localhost:18080/viewer?scenarioMode=fixture&fleetSize=30',
+));
+assert.equal(coreUrl.searchParams.get('scenarioMode'), 'live');
+assert.equal(coreUrl.searchParams.get('liveProfile'), 'kinematic');
+assert.equal(coreUrl.searchParams.get('autoConnect'), '1');
 
 const legacy = parseScenarioRuntimeOptions('r7Fixture=1&fleetSize=20');
 assert.equal(legacy.scenarioMode, 'fixture');

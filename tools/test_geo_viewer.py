@@ -25,12 +25,37 @@ class GeoViewerContractTest(unittest.TestCase):
         self.assertIn('id="three-root"', html)
         self.assertIn("new URL('./src/ui.js'", html)
         self.assertIn("await import(uiModuleUrl.href)", html)
-        self.assertIn("phase-e-20260813-14", html)
+        self.assertIn("demo-compare-20260814-1", html)
         self.assertIn('"3d-tiles-renderer"', html)
         self.assertIn('"3d-tiles-renderer/gltf-cesium-rtc"', html)
         self.assertIn('id="benchmark-start-btn"', html)
         self.assertIn('id="benchmark-download-btn"', html)
         self.assertIn("Hakoniwa Geo + Web3D Drone Viewer", html)
+
+    def test_split_demo_explains_comparison_and_shared_target(self) -> None:
+        html = self.read("src/client/index.html")
+        ui = self.read("src/client/src/ui.js")
+        runtime = self.read("src/client/src/scenario_runtime.mjs")
+        self.assertIn('id="comparison-panel"', html)
+        self.assertIn('id="map-comparison-label"', html)
+        self.assertIn('id="three-comparison-label"', html)
+        self.assertIn('id="execution-source-select"', html)
+        self.assertIn('id="comparison-sync-status"', html)
+        self.assertIn("同一地域・同一機体状態", html)
+        self.assertIn("機体ピン／航跡", html)
+        self.assertIn("3D機体", html)
+        self.assertIn('id="focus-selected-drone-btn"', html)
+        self.assertIn("Mapray 3D GIS/B3D", html)
+        self.assertIn("PLATEAU直接表示/Three.js", html)
+        self.assertIn("describeExecutionSource", runtime)
+        self.assertIn("buildExecutionSourceUrl", runtime)
+        self.assertIn("updateComparisonSyncStatus", ui)
+        self.assertIn("focusSelectedDroneView", ui)
+        self.assertIn("window.__hakoniwaComparisonDiagnostics", ui)
+        self.assertNotIn(
+            "&& threeEnvironmentScope === 'local'\n      && (followMode",
+            ui,
+        )
 
     def test_ui_uses_public_threejs_viewer_api(self) -> None:
         ui = self.read("src/client/src/ui.js")

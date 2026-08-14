@@ -76,6 +76,22 @@
     }
 
     #mapray-status { position:absolute; right:10px; top:10px; z-index:500; padding:6px 8px; background:rgba(255,255,255,.9); border:1px solid #888; border-radius:4px; font:12px sans-serif; }
+    .comparison-pane-label {
+      position: absolute;
+      z-index: 501;
+      left: 12px;
+      top: 10px;
+      max-width: calc(100% - 360px);
+      padding: 6px 9px;
+      border: 1px solid rgba(255, 255, 255, 0.78);
+      border-radius: 4px;
+      background: rgba(12, 28, 40, 0.82);
+      color: #fff;
+      font: 700 11px/1.25 system-ui, sans-serif;
+      letter-spacing: .025em;
+      pointer-events: none;
+    }
+    .comparison-pane-label small { display: block; margin-top: 2px; font-weight: 500; opacity: .9; }
     #map, #mapray-container {
       position: absolute;
       inset: 0;
@@ -121,6 +137,13 @@
       letter-spacing: 0.04em;
       pointer-events: none;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+    }
+
+    #three-comparison-label {
+      left: auto;
+      right: 12px;
+      max-width: calc(100% - 330px);
+      background: rgba(47, 35, 12, 0.82);
     }
 
     #three-local-status[data-coverage="outside"] {
@@ -216,6 +239,14 @@
       font: 700 11px sans-serif;
       letter-spacing: .03em;
     }
+    #comparison-panel { border-color: #718096; background: #f8fafc; }
+    .comparison-axis { margin-top: 7px; padding-top: 7px; border-top: 1px solid #d6dde4; }
+    .comparison-axis:first-of-type { margin-top: 5px; padding-top: 0; border-top: 0; }
+    .comparison-axis-label { font-weight: 700; color: #1f2937; }
+    .comparison-axis-note { margin-top: 2px; color: #475569; font-size: 11px; line-height: 1.35; }
+    #execution-source-select { width: 100%; margin-top: 5px; }
+    #execution-source-status, #comparison-sync-status { margin-top: 5px; font-size: 11px; line-height: 1.35; }
+    #comparison-sync-status { color: #0f5132; font-weight: 700; }
     #benchmark-status {
       margin-top: 5px;
       color: #334155;
@@ -249,6 +280,22 @@
         <select id="location-select" style="width:100%;">
           <option>loading...</option>
         </select>
+      </div>
+      <div class="prop-box" id="comparison-panel">
+        <strong>Demo comparison</strong>
+        <div class="comparison-axis">
+          <div class="comparison-axis-label">A. 表示経路</div>
+          <div class="comparison-axis-note">上段 Mapray 3D GIS/B3D ↔ 下段 PLATEAU直接表示/Three.js。同一地域・同一機体状態を、上段は運航ピン／航跡、下段は3D機体で比較します。</div>
+        </div>
+        <div class="comparison-axis">
+          <label class="comparison-axis-label" for="execution-source-select">B. 状態生成元</label>
+          <select id="execution-source-select">
+            <option value="browser-standalone">Browser Standalone</option>
+            <option value="hakoniwa-core">Hakoniwa Core / PDU</option>
+          </select>
+          <div id="execution-source-status">loading...</div>
+          <div id="comparison-sync-status">SYNC: initializing...</div>
+        </div>
       </div>
       <div class="prop-box" id="phase-d-evaluation-panel" hidden>
         <strong>Phase D A/B evaluation</strong>
@@ -385,11 +432,12 @@
       </div>
 
       <div class="prop-box" style="margin-top:8px;margin-bottom:8px;">
-        <strong>Wide-area camera</strong>
+        <strong>Synchronized camera target</strong>
         <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;">
           <button id="focus-wide-area-btn" type="button">5km overview</button>
           <button id="focus-incident-btn" type="button">Incident</button>
           <button id="focus-local-area-btn" type="button">600m detail</button>
+          <button id="focus-selected-drone-btn" type="button">Selected drone</button>
         </div>
         <div id="wide-area-status" style="margin-top:5px;color:#444;font-size:11px;">
             5km: standard map/DEM / public PLATEAU B3D: ready
@@ -450,12 +498,14 @@
 
     <div id="right-container">
       <div id="map-container">
+        <div class="comparison-pane-label" id="map-comparison-label">A | MAPRAY 3D GIS<small>DEM・航空写真・B3D・機体ピン／航跡</small></div>
         <div id="mapray-status"><span class="mapray-status">Mapray loading...</span></div>
         <div id="map"></div>
         <div id="mapray-container"></div>
       </div>
       <div id="splitter"></div>
       <div id="three-container">
+        <div class="comparison-pane-label" id="three-comparison-label">B | DIRECT PLATEAU / THREE.JS<small>LOD1・600m DEM・3D機体</small></div>
         <div id="three-local-status" data-coverage="overview" title="LOCAL 600m / PLATEAU LOD1 + MuJoCoへ切替可能">WIDE 5km / PLATEAU LOD1 STREAMING</div>
         <div id="three-drone-legend"><span class="fleet">⊕</span> fleet / <span class="selected">⊕━</span> selected + trail</div>
         <div id="three-root"></div>
@@ -487,7 +537,7 @@
     const pduStatus = document.getElementById('connection-status');
     if (pduStatus) pduStatus.textContent = 'PDU: ui.jsを読み込み中...';
     const uiModuleUrl = new URL('./src/ui.js', window.location.href);
-    uiModuleUrl.searchParams.set('v', 'phase-e-20260813-14');
+    uiModuleUrl.searchParams.set('v', 'demo-compare-20260814-1');
     try {
       await import(uiModuleUrl.href);
     } catch (error) {

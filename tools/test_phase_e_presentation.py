@@ -90,7 +90,7 @@ class PhaseEPresentationContractTest(unittest.TestCase):
         self.assertIn("LOD1_CITY_ENVIRONMENT_VERSION", ui)
         self.assertIn("insideLocalDetail", ui)
         self.assertIn("OUTSIDE LOCAL DETAIL", ui)
-        self.assertIn("if (isR7) setTimeout(() => connectBtn.click(), 0);", ui)
+        self.assertIn("scenarioRuntime.isLive && pageParams.get('autoConnect') === '1'", ui)
         self.assertNotIn("enableAttachedCameras: false", ui)
         self.assertIn("pageParams.get('demoFlight') === '1'", ui)
         self.assertIn("pageParams.get('localPresentation') === '1'", ui)

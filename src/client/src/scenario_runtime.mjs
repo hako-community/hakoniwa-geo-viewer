@@ -60,3 +60,55 @@ export function parseScenarioRuntimeOptions(search = '') {
     isLive: scenarioMode === 'live',
   });
 }
+
+export function describeExecutionSource(runtime) {
+  if (runtime?.scenarioMode === 'live') {
+    if (runtime.liveProfile === 'mujoco') {
+      return Object.freeze({
+        id: 'hakoniwa-core',
+        label: 'Hakoniwa Core + MuJoCo',
+        detail: '箱庭時刻・MuJoCo物理・PDU/WebSocket',
+        requiresPdu: true,
+      });
+    }
+    return Object.freeze({
+      id: 'hakoniwa-core',
+      label: 'Hakoniwa Core / Kinematic',
+      detail: '箱庭時刻・集約PDU/WebSocket・kinematic publisher',
+      requiresPdu: true,
+    });
+  }
+  if (runtime?.scenarioMode === 'replay') {
+    return Object.freeze({
+      id: 'browser-standalone',
+      label: 'Browser Replay',
+      detail: '記録状態をブラウザで再生・PDUなし',
+      requiresPdu: false,
+    });
+  }
+  return Object.freeze({
+    id: 'browser-standalone',
+    label: 'Browser Standalone',
+    detail: 'ブラウザ内で状態と疑似イベントを生成・PDUなし',
+    requiresPdu: false,
+  });
+}
+
+export function buildExecutionSourceUrl(source, currentUrl) {
+  const url = new URL(String(currentUrl));
+  if (source === 'browser-standalone') {
+    url.searchParams.set('scenarioMode', 'fixture');
+    url.searchParams.delete('liveProfile');
+    url.searchParams.delete('autoConnect');
+  } else if (source === 'hakoniwa-core') {
+    url.searchParams.set('scenarioMode', 'live');
+    url.searchParams.set('autoConnect', '1');
+    const profile = url.searchParams.get('liveProfile');
+    if (!SUPPORTED_LIVE_PROFILES.includes(profile) || profile === 'generic') {
+      url.searchParams.set('liveProfile', 'kinematic');
+    }
+  } else {
+    throw new Error(`unsupported execution source: ${source}`);
+  }
+  return url.toString();
+}

@@ -9,7 +9,11 @@ import { FlightStateStore } from './flight_state_store.mjs?v=r4-20260809-1';
 import { evaluateFlightRules } from './flight_rules.mjs?v=r8-20260811-1';
 import { generateFleetSyntheticData } from './fleet_manager.mjs?v=r8-20260811-1';
 import { getOperationsExtent, normalizeOperationsData } from './operations_layer.mjs?v=phase-e-20260813-14';
-import { parseScenarioRuntimeOptions } from './scenario_runtime.mjs?v=r8-20260811-1';
+import {
+  buildExecutionSourceUrl,
+  describeExecutionSource,
+  parseScenarioRuntimeOptions,
+} from './scenario_runtime.mjs?v=demo-compare-20260814-1';
 import { createWideAreaScenario } from './wide_area_scenario.mjs?v=c1-20260811-1';
 import {
   BrowserPerformanceMonitor,
@@ -431,6 +435,11 @@ function initializeUi() {
   let activeLayoutMode = 'operations';
   let customMapRatio = null;
   let lastSelectionSource = 'none';
+  let comparisonViewState = {
+    scope: 'wide',
+    targetLabel: '5km center',
+    source: 'initial',
+  };
   window.__hakoniwaR4Diagnostics = () => ({
     snapshot: flightStateStore.getSnapshot(),
     selectionSource: lastSelectionSource,
@@ -448,6 +457,9 @@ function initializeUi() {
   const environmentStatus = document.getElementById('environment-status');
   const scenarioModeStatus = document.getElementById('scenario-mode-status');
   const locationSelect = document.getElementById('location-select');
+  const executionSourceSelect = document.getElementById('execution-source-select');
+  const executionSourceStatus = document.getElementById('execution-source-status');
+  const comparisonSyncStatus = document.getElementById('comparison-sync-status');
   const benchmarkWarmupInput = document.getElementById('benchmark-warmup-sec');
   const benchmarkDurationInput = document.getElementById('benchmark-duration-sec');
   const benchmarkStartBtn = document.getElementById('benchmark-start-btn');
@@ -460,6 +472,7 @@ function initializeUi() {
   const focusWideAreaBtn = document.getElementById('focus-wide-area-btn');
   const focusIncidentBtn = document.getElementById('focus-incident-btn');
   const focusLocalAreaBtn = document.getElementById('focus-local-area-btn');
+  const focusSelectedDroneBtn = document.getElementById('focus-selected-drone-btn');
   const wideAreaStatus = document.getElementById('wide-area-status');
   const triggerTestCollisionBtn = document.getElementById('trigger-test-collision-btn');
   const latInput = document.getElementById('origin-lat');
@@ -659,15 +672,57 @@ function initializeUi() {
     console.error('[PhaseD] setup failed:', error);
   });
 
+  const executionSourceDetails = describeExecutionSource(scenarioRuntime);
   if (scenarioModeStatus) {
-    scenarioModeStatus.textContent = `${scenarioRuntime.displayLabel} / ${scenarioRuntime.fleetSize}機 / seed ${scenarioRuntime.seed}`;
+    scenarioModeStatus.textContent = `STATE: ${executionSourceDetails.label} / ${scenarioRuntime.fleetSize}機 / seed ${scenarioRuntime.seed}`;
     scenarioModeStatus.dataset.scenarioMode = scenarioRuntime.scenarioMode;
+  }
+  if (executionSourceSelect) {
+    executionSourceSelect.value = executionSourceDetails.id;
+    executionSourceSelect.addEventListener('change', () => {
+      const nextUrl = buildExecutionSourceUrl(executionSourceSelect.value, window.location.href);
+      window.location.assign(nextUrl);
+    });
+  }
+  if (executionSourceStatus) {
+    const requirement = executionSourceDetails.requiresPdu
+      ? 'Core launcherとPDU接続が必要です。'
+      : 'このページだけで実行できます。';
+    executionSourceStatus.textContent = `${executionSourceDetails.label}: ${executionSourceDetails.detail}。${requirement}`;
   }
   setupLocationSelector(
     locationSelect,
     window.location.href,
     (url) => window.location.assign(url),
   );
+
+  function updateComparisonSyncStatus({
+    scope = threeEnvironmentScope,
+    targetLabel = comparisonViewState.targetLabel,
+    source = comparisonViewState.source,
+  } = {}) {
+    comparisonViewState = { scope, targetLabel, source };
+    const selectedDroneId = flightStateStore.getSnapshot().selectedDroneId;
+    const scopeLabel = scope === 'local' ? '600m local' : '5km wide';
+    const selectedLabel = selectedDroneId ? ` / selected ${selectedDroneId}` : '';
+    if (comparisonSyncStatus) {
+      comparisonSyncStatus.textContent = `SYNC TARGET: ${scopeLabel} / ${targetLabel}${selectedLabel}`;
+    }
+    window.__hakoniwaComparisonDiagnostics = () => ({
+      displayComparison: {
+        mapray: 'Mapray 3D GIS / DEM / imagery / B3D / operations',
+        directPlateau: 'Direct PLATEAU / Three.js / LOD1 / local DEM',
+      },
+      executionSource: executionSourceDetails,
+      view: { ...comparisonViewState, selectedDroneId },
+      mapray: maprayLayer?.getSelectionDiagnostics?.() ?? null,
+      three: {
+        environmentScope: viewer?.getEnvironmentScope?.() ?? threeEnvironmentScope,
+        focusedDroneId: viewer?.getFocusedDroneId?.() ?? null,
+      },
+    });
+  }
+  updateComparisonSyncStatus();
 
   window.__hakoniwaDiagnostics = () => {
     const snapshot = flightStateStore.getSnapshot();
@@ -702,6 +757,7 @@ function initializeUi() {
         environmentScope: viewer?.getEnvironmentScope?.() ?? threeEnvironmentScope,
         environments: viewer?.getEnvironmentDiagnostics?.() ?? [],
       },
+      comparison: window.__hakoniwaComparisonDiagnostics?.() ?? null,
       snapshotRevision: snapshot.revision,
     };
   };
@@ -1328,6 +1384,7 @@ function initializeUi() {
     const localReady = scenarioCoverage.localDetail.dataStatus === 'ready';
     threeEnvironmentScope = scope === 'local' && localReady ? 'local' : 'wide';
     viewer?.setEnvironmentScope?.(threeEnvironmentScope);
+    updateComparisonSyncStatus({ scope: threeEnvironmentScope, source: 'environment-scope' });
     if (!threeLocalStatus) return;
     if (threeEnvironmentScope === 'wide') {
       threeLocalStatus.dataset.coverage = scope === 'local' && !localReady ? 'outside' : 'overview';
@@ -1368,6 +1425,7 @@ function initializeUi() {
       wideAreaStatus.textContent = `VIEW: ${scenarioCoverage.wideArea.label} (${source}) / ${scenarioCoverage.wideArea.display}`;
       wideAreaStatus.dataset.coverage = scenarioCoverage.wideArea.dataStatus || 'unknown';
     }
+    updateComparisonSyncStatus({ scope: 'wide', targetLabel: '5km center', source });
     performanceMonitor.markMilestone('camera-wide-area', { source });
   }
 
@@ -1382,12 +1440,26 @@ function initializeUi() {
     maprayLayer?.focusGeoPoint?.({
       longitude: coordinate[0], latitude: coordinate[1], height: coordinate[2] || 0,
     }, { cameraHeightOffset: 700 });
+    let synchronizedTarget = null;
     if (selectTarget && wideAreaScenario?.incident) {
       const target = flightStateStore.getSnapshot().drones[wideAreaScenario.incident.targetDroneIndex];
-      if (target) flightStateStore.selectDrone(target.id, { source: 'wide-area-incident' });
+      if (target) {
+        synchronizedTarget = target;
+        flightStateStore.selectDrone(target.id, { source: 'wide-area-incident' });
+      }
     }
     applyLayoutMode('incident');
     if (wideAreaStatus) wideAreaStatus.textContent = `VIEW: incident (${source}) / route deviation`;
+    if (synchronizedTarget) {
+      focusSelectedDroneView({ source: `${source}-incident-target` });
+    }
+    updateComparisonSyncStatus({
+      scope: 'local',
+      targetLabel: synchronizedTarget
+        ? `drone ${synchronizedTarget.id}`
+        : (feature?.properties?.name || 'incident'),
+      source,
+    });
     performanceMonitor.markMilestone('camera-incident', { source });
   }
 
@@ -1415,16 +1487,38 @@ function initializeUi() {
       wideAreaStatus.textContent = `VIEW: ${scenarioCoverage.localDetail.label} (${source}) / ${scenarioCoverage.localDetail.display}`;
       wideAreaStatus.dataset.coverage = scenarioCoverage.localDetail.dataStatus || 'unknown';
     }
+    updateComparisonSyncStatus({ scope: 'local', targetLabel: '600m center', source });
     performanceMonitor.markMilestone('camera-local-area', { source });
+  }
+
+  function focusSelectedDroneView({ source = 'button' } = {}) {
+    const snapshot = flightStateStore.getSnapshot();
+    const selectedDroneId = snapshot.selectedDroneId;
+    if (!selectedDroneId) {
+      if (comparisonSyncStatus) comparisonSyncStatus.textContent = 'SYNC TARGET: 機体を選択してください';
+      return false;
+    }
+    viewer?.focusDroneById?.(selectedDroneId);
+    maprayLayer?.setSelectedDroneId?.(selectedDroneId, { focus: true });
+    const marker = leafletDrones.get(String(selectedDroneId))?.marker;
+    if (marker) map.panTo(marker.getLatLng());
+    updateComparisonSyncStatus({
+      scope: threeEnvironmentScope,
+      targetLabel: `drone ${selectedDroneId}`,
+      source,
+    });
+    return true;
   }
 
   focusWideAreaBtn?.addEventListener('click', () => void focusWideAreaView());
   focusIncidentBtn?.addEventListener('click', () => void focusIncidentView());
   focusLocalAreaBtn?.addEventListener('click', () => void focusLocalAreaView());
+  focusSelectedDroneBtn?.addEventListener('click', () => focusSelectedDroneView());
   window.__hakoniwaWideAreaCamera = {
     wide: focusWideAreaView,
     incident: focusIncidentView,
     local: focusLocalAreaView,
+    selected: focusSelectedDroneView,
   };
 
   if (activeLayoutMode !== 'offline') void ensureMaprayInitialized();
@@ -1671,7 +1765,9 @@ function initializeUi() {
   window.__hakoniwaUiReady = true;
   performanceMonitor.markMilestone('ui-ready');
   if (connectionStatus) connectionStatus.textContent = 'PDU: ready to connect';
-  if (isR7) setTimeout(() => connectBtn.click(), 0);
+  if (isR7 || (scenarioRuntime.isLive && pageParams.get('autoConnect') === '1')) {
+    setTimeout(() => connectBtn.click(), 0);
+  }
   if (benchmarkOptions.autoStart) setTimeout(startBenchmark, 0);
   if (applyOriginBtn) {
     applyOriginBtn.addEventListener('click', () => {
@@ -1696,6 +1792,7 @@ function initializeUi() {
     if (viewer) {
       viewer.setFollowSelectedEnabled(followMode);
     }
+    if (followMode) focusSelectedDroneView({ source: 'follow-enabled' });
   });
 
   function renderCollisionEvent(event, incidentCount) {
@@ -1836,7 +1933,6 @@ function initializeUi() {
     if (
       snapshot?.selectedDroneId
       && viewer
-      && threeEnvironmentScope === 'local'
       && (followMode || change.type === 'incident-selection')
     ) {
       viewer.focusDroneById(snapshot.selectedDroneId);
@@ -1877,14 +1973,18 @@ function initializeUi() {
     }
     maprayLayer?.setSelectedDroneId(snapshot?.selectedDroneId, {
       focus: change.type === 'selection'
-        && followMode
-        && threeEnvironmentScope === 'local',
+        && followMode,
     });
     if ((change.type === 'selection' || change.selectionChanged) && snapshot?.selectedDroneId) {
       if (followMode) {
         const selectedMarker = leafletDrones.get(String(snapshot.selectedDroneId))?.marker;
         if (selectedMarker) map.panTo(selectedMarker.getLatLng());
       }
+      updateComparisonSyncStatus({
+        scope: threeEnvironmentScope,
+        targetLabel: followMode ? `drone ${snapshot.selectedDroneId}` : comparisonViewState.targetLabel,
+        source: change.source || 'selection',
+      });
     }
 
     // インシデントリスト UI の確実な描画・カウントアップ更新

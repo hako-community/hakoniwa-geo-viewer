@@ -152,6 +152,27 @@ http://localhost:18080/hakoniwa-geo-viewer/src/client/index.html?scenarioConfig=
 公開PLATEAUによる5km表示に加え、港区2025 CityGMLから生成した600mのDEM、LOD1、
 MuJoCo衝突プロキシへ切り替えられます。
 
+画面の上下2分割は、上段を`Mapray 3D GIS`（DEM、航空写真、B3D、運航レイヤ）、
+下段を`Direct PLATEAU / Three.js`（LOD1、600m DEM、シミュレーション詳細）として
+同一地域・同一運航状態を比較します。`5km overview`、`Incident`、`600m detail`、
+`Selected drone`は両画面の注視対象を同時に変更します。MaprayとThree.jsでは投影と
+画角が異なるため、同一カメラ行列ではなく同一の地域・地理ターゲットを同期します。
+
+左パネルの`State source`では、ブラウザ内で状態を生成する`Browser Standalone`と、
+箱庭時刻・集約PDUを使う`Hakoniwa Core / PDU`の実行主体を明示します。箱庭コア版は
+ワークスペースルートから次のように起動します。
+
+```powershell
+.\scripts\windows\start_core_fleet_demo.ps1 -ScenarioName tokyo-tower -FleetSize 30
+```
+
+コマンド出力の`viewerUrl`を開きます。これはkinematic Publisherによる比較基準であり、
+MuJoCo物理・実接触を生成する構成ではありません。終了時は次を実行します。
+
+```powershell
+.\scripts\windows\stop_core_fleet_demo.ps1
+```
+
 10機fixture:
 
 ```text
