@@ -1,0 +1,119 @@
+{
+  "building_counts": {
+    "building_body_count": 1463,
+    "building_geom_count": 1463,
+    "building_record_count": 1463
+  },
+  "duration_seconds": 7.058,
+  "files": {
+    "buildings-lod1.json": {
+      "bytes": 177417,
+      "sha256": "f9390feae2b12298d458e0d121bdaaa4fb6e28553776598aeda9a17b17973ba2"
+    },
+    "buildings-obb.json": {
+      "bytes": 1428088,
+      "sha256": "92a6d7768b80a54a650cc72987d35b05669b872b2a7120ede1269f787563f62e"
+    },
+    "buildings.xml": {
+      "bytes": 464259,
+      "sha256": "a7ba562f13f8cfe14130417f4a0927c7024dcde7737916a800c2c9ee5fbae0db"
+    },
+    "drone-base.xml": {
+      "bytes": 5607,
+      "sha256": "88e49a24f45385156371871e9a851af65fdf6ddbbe3fb462f35e98c46b38ce34"
+    },
+    "drone.xml": {
+      "bytes": 469737,
+      "sha256": "20723b0867339c2502748080b5ebe0a97c9dc72e6d1b267487531d2bab17682d"
+    }
+  },
+  "integration": {
+    "added_building_nodes": 1463,
+    "removed_existing_building_nodes": 4266
+  },
+  "reference_comparison": null,
+  "scenario": {
+    "base_model": "runtime/windows/scenarios/shibuya/config/drone/mujoco-shibuya-api-1/drone-reference-w1.xml",
+    "citygml": {
+      "base_epsilon_m": 0.2,
+      "kinds": [
+        "bldg"
+      ],
+      "measured_height_ids": [
+        "bldg_7aff4a51-be8b-405b-abe4-ac489697cbc8"
+      ],
+      "pattern": "*bldg*_op.gml",
+      "swap_latlon": true
+    },
+    "collision": {
+      "mode": "drone"
+    },
+    "extent": {
+      "east_west_half_m": 300.0,
+      "north_south_half_m": 300.0
+    },
+    "geometry": {
+      "wall_thickness_m": 0.1,
+      "waste_threshold": 1.0
+    },
+    "horizontal_crs": "EPSG:6677",
+    "mujoco_axes": {
+      "x": "north",
+      "y": "-east",
+      "z": "up"
+    },
+    "name": "tokyo-tower",
+    "origin": {
+      "altitude": 0.0,
+      "latitude": 35.658581,
+      "longitude": 139.745433
+    },
+    "schema_version": 1,
+    "source_crs": "EPSG:4326",
+    "terrain": {
+      "base_depth_m": 5.0,
+      "grid_size": 257,
+      "nodata": -9999.0,
+      "source": "PLATEAU Minato 2025 CityGML TINRelief EPSG:6697",
+      "source_margin_m": 20.0,
+      "validation_tolerance_m": 0.05,
+      "z_baseline": "building_min"
+    },
+    "vertical": {
+      "datum": "orthometric_height",
+      "z_offset": 0.0
+    }
+  },
+  "schema_version": 1,
+  "selection": {
+    "indexed_count": 2,
+    "query": {
+      "bbox": {
+        "max_lat": 35.66127594585236,
+        "max_lon": 139.748749835388,
+        "min_lat": 35.655886054147636,
+        "min_lon": 139.74211616461199
+      },
+      "center_lat": 35.658581,
+      "center_lon": 139.745433,
+      "ew_m": 300.0,
+      "ns_m": 300.0
+    },
+    "selected": [
+      {
+        "kind": "bldg",
+        "mesh": "53393599",
+        "path": "udx/bldg/53393599_bldg_6697_op.gml"
+      }
+    ]
+  },
+  "source_root": "D:\\work_hako\\work_mapray\\data\\plateau\\minato-2025",
+  "validation": {
+    "building_body_count": 1463,
+    "building_geom_count": 1463,
+    "mujoco_version": "3.8.0",
+    "nbody": 1484,
+    "ngeom": 1484,
+    "njnt": 2
+  }
+}

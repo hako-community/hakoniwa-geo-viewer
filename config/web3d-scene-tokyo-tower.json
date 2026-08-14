@@ -15,6 +15,18 @@
         "enablePan": false
       },
       "fog": { "near": 6500, "far": 18000 }
+    },
+    "local": {
+      "camera": {
+        "position": [-400.0, 350.0, 420.0],
+        "targetPositionRos": [0.0, 0.0, 160.0],
+        "far": 5000,
+        "minPolarAngleDeg": 1,
+        "maxPolarAngleDeg": 179,
+        "minDistanceM": 1,
+        "enablePan": true
+      },
+      "fog": { "near": 900, "far": 2500 }
     }
   },
   "environments": [
@@ -23,17 +35,20 @@
       "type": "plateau-3dtiles",
       "modes": ["physics", "visual"],
       "scopes": ["wide"],
-      "origin": { "latitude": 35.658581, "longitude": 139.745433, "heightM": 42.0 },
+      "origin": { "latitude": 35.658581, "longitude": 139.745433, "heightM": 41.4945 },
       "verticalOffsetM": 0.5,
       "verticalReference": {
         "tiles": "WGS84 ellipsoidal height",
-        "simulation": "provisional local height; 600m DEM baseline pending",
-        "localOriginEllipsoidalHeightM": 42.0,
+        "simulation": "orthometric height relative to zBaselineM",
+        "geoidModel": "GSIGEO2011 Ver.2.2",
+        "geoidHeightM": 36.5945,
+        "zBaselineM": 4.9,
+        "localOriginEllipsoidalHeightM": 41.4945,
         "terrainClearanceM": 0.5
       },
       "errorTarget": 24,
       "clipSizeM": 5000,
-      "clipCenter": { "latitude": 35.658581, "longitude": 139.745433, "heightM": 42.0 },
+      "clipCenter": { "latitude": 35.658581, "longitude": 139.745433, "heightM": 41.4945 },
       "cacheMaxSize": 320,
       "cacheMinSize": 240,
       "downloadJobsPerSource": 2,
@@ -49,6 +64,53 @@
         { "id": "13109-shinagawa", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13109-bldg-lod1-latest/tileset.json" },
         { "id": "13113-shibuya", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13113-bldg-lod1-latest/tileset.json" }
       ]
+    },
+    {
+      "name": "tokyo-tower-terrain",
+      "type": "terrain-grid",
+      "modes": ["physics", "visual"],
+      "scopes": ["local"],
+      "terrainGridPath": "../runtime-assets/tokyo-tower/terrain-grid.json",
+      "material": {
+        "mode": "elevation",
+        "lowColor": "#315d45",
+        "middleColor": "#9d895f",
+        "highColor": "#e7e2d2",
+        "wireframe": false,
+        "roughness": 0.92,
+        "metalness": 0.0
+      },
+      "debug": { "grid": false, "gridDivisions": 24, "axes": false, "axesSizeM": 25.0 }
+    },
+    {
+      "name": "tokyo-tower-plateau-lod1",
+      "type": "lod1-city",
+      "modes": ["physics", "visual"],
+      "scopes": ["local"],
+      "lod1Path": "../runtime-assets/tokyo-tower/buildings-lod1.json",
+      "zBaselineM": 4.9,
+      "material": {
+        "wallPalette": ["#d8d1c4", "#c8d2d6", "#d8c2af", "#c8c6be", "#d9d9d2"],
+        "roofColor": "#b3261e",
+        "roughness": 0.78,
+        "metalness": 0.02,
+        "castShadow": true
+      }
+    },
+    {
+      "name": "tokyo-tower-collision-buildings",
+      "type": "model",
+      "kind": "mjcf",
+      "modes": ["physics"],
+      "scopes": ["local"],
+      "enabled": false,
+      "model": "../runtime-assets/tokyo-tower/buildings.xml",
+      "material": {
+        "mode": "collision-debug",
+        "color": "#4b9bd6",
+        "opacity": 0.34,
+        "depthWrite": false
+      }
     }
   ],
   "main_camera": {

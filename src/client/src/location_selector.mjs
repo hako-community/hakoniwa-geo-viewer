@@ -6,7 +6,7 @@ export const LOCATION_CATALOG = Object.freeze([
   }),
   Object.freeze({
     id: 'tokyo-tower',
-    label: '東京タワー（5km / 600m準備中）',
+    label: '東京タワー（5km + 600m詳細）',
     scenarioConfig: '/hakoniwa-geo-viewer/config/viewer-config-tokyo-tower.json',
   }),
 ]);

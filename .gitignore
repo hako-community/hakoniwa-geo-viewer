@@ -214,6 +214,15 @@ runtime-assets/shibuya/*
 !runtime-assets/shibuya/buildings-lod1.json
 !runtime-assets/shibuya/city-pipeline-manifest.json
 !runtime-assets/shibuya/terrain-source-manifest.json
+!runtime-assets/tokyo-tower/
+runtime-assets/tokyo-tower/*
+!runtime-assets/tokyo-tower/manifest.json
+!runtime-assets/tokyo-tower/terrain-grid.json
+!runtime-assets/tokyo-tower/buildings.xml
+!runtime-assets/tokyo-tower/buildings-lod1.json
+!runtime-assets/tokyo-tower/city-pipeline-manifest.json
+!runtime-assets/tokyo-tower/terrain-source-manifest.json
+!runtime-assets/tokyo-tower/source-manifest.json
 
 # Marimo
 marimo/_static/

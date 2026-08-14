@@ -149,8 +149,8 @@ http://localhost:18080/hakoniwa-geo-viewer/src/client/index.html?scenarioConfig=
 ```
 
 左パネルの`Location`でも渋谷と東京タワーを切り替えられます。東京タワーはMaprayと
-公開PLATEAUによる5km表示まで対応済みです。600mボタンは対象範囲へフォーカスしますが、
-Minato CityGMLから地形・LOD1・MuJoCo資産を生成するまでは下段5km表示を維持します。
+公開PLATEAUによる5km表示に加え、港区2025 CityGMLから生成した600mのDEM、LOD1、
+MuJoCo衝突プロキシへ切り替えられます。
 
 10機fixture:
 
@@ -214,9 +214,9 @@ viewer-config-shibuya.json
        `- web3d scene config
 ```
 
-`runtime-assets/shibuya`には、`hakoniwa-simenv-data`で生成し、SHA-256とschemaを
-検証した成果物だけを配備します。PLATEAUの原本や大容量CityGML ZIPはリポジトリへ
-コミットしません。
+`runtime-assets/shibuya`と`runtime-assets/tokyo-tower`には、`hakoniwa-simenv-data`で生成し、
+SHA-256とschemaを検証した成果物だけを配備します。PLATEAUの原本や大容量CityGMLは
+リポジトリへコミットしません。
 
 高精細表示用の`13113_shibuya-ku_pref_2023_citygml_2_op.glb`は任意資産です。
 このGLBは標準起動には不要であり、存在しなくても`doctor`、`test`、`smoke`と
