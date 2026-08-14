@@ -1,14 +1,17 @@
 const EXPECTED_SCHEMA_VERSION = 1;
 const EXPECTED_FRAME = 'mujoco_x_north_y_minus_east_z_up';
-const REQUIRED_PATHS = Object.freeze([
-  'geoOrigin',
-  'mapray',
+const REQUIRED_PATHS = Object.freeze(['geoOrigin', 'mapray']);
+const LOCAL_DETAIL_PATHS = Object.freeze([
   'runtimeManifest',
   'terrainGrid',
   'buildings',
   'buildingsLod1',
 ]);
-const OPTIONAL_PATHS = Object.freeze(['operationsLayer']);
+const OPTIONAL_PATHS = Object.freeze([
+  ...LOCAL_DETAIL_PATHS,
+  'wideTerrainGrid',
+  'operationsLayer',
+]);
 
 function requireNonEmptyString(value, label) {
   if (typeof value !== 'string' || value.trim().length === 0) {
@@ -82,6 +85,11 @@ export function validateScenarioConfig(data) {
   for (const name of REQUIRED_PATHS) {
     requireNonEmptyString(data.paths?.[name], `paths.${name}`);
   }
+  if (data.coverage?.localDetail?.dataStatus === 'ready') {
+    for (const name of LOCAL_DETAIL_PATHS) {
+      requireNonEmptyString(data.paths?.[name], `paths.${name}`);
+    }
+  }
   if (data.coverage) {
     for (const name of ['wideArea', 'localDetail']) {
       const coverage = data.coverage[name];
@@ -129,11 +137,16 @@ export async function loadViewerScenarioConfig(
       urls[name] = resolveSameOriginUrl(scenarioUrl, scenario.paths[name], `paths.${name}`);
     }
   }
-  const runtimeManifest = validateRuntimeAssetManifest(
-    await loadJson(urls.runtimeManifest, 'runtime asset manifest'),
-    scenario.id,
-  );
-  if (runtimeManifest.coordinateContract.frame !== scenario.coordinateContract.frame) {
+  const runtimeManifest = urls.runtimeManifest
+    ? validateRuntimeAssetManifest(
+      await loadJson(urls.runtimeManifest, 'runtime asset manifest'),
+      scenario.id,
+    )
+    : null;
+  if (
+    runtimeManifest
+    && runtimeManifest.coordinateContract.frame !== scenario.coordinateContract.frame
+  ) {
     throw new Error('[ScenarioConfig] scenario and runtime coordinate frames differ');
   }
   const web3d = {
@@ -145,12 +158,19 @@ export async function loadViewerScenarioConfig(
     web3d.sceneConfigPath,
     'web3d.sceneConfigPath',
   );
+  const fixtureSceneConfigUrl = web3d.fixtureSceneConfigPath
+    ? resolveSameOriginUrl(
+      absoluteViewerConfigUrl,
+      web3d.fixtureSceneConfigPath,
+      'web3d.fixtureSceneConfigPath',
+    )
+    : null;
   return {
     ...scenario,
     viewerConfigUrl: absoluteViewerConfigUrl,
     scenarioUrl,
     urls,
     runtimeManifest,
-    web3d: { ...web3d, sceneConfigUrl },
+    web3d: { ...web3d, sceneConfigUrl, fixtureSceneConfigUrl },
   };
 }

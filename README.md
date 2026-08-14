@@ -142,6 +142,16 @@ MAPRAY_API_KEY=your-mapray-api-key
 http://localhost:18080/hakoniwa-geo-viewer/src/client/index.html?scenarioConfig=/hakoniwa-geo-viewer/config/viewer-config-shibuya.json&threejsRoot=/hakoniwa-web3d-drone
 ```
 
+東京タワー5kmシナリオ:
+
+```text
+http://localhost:18080/hakoniwa-geo-viewer/src/client/index.html?scenarioConfig=/hakoniwa-geo-viewer/config/viewer-config-tokyo-tower.json&threejsRoot=/hakoniwa-web3d-drone&scenarioMode=fixture&fleetSize=30&seed=20260811
+```
+
+左パネルの`Location`でも渋谷と東京タワーを切り替えられます。東京タワーはMaprayと
+公開PLATEAUによる5km表示まで対応済みです。600mボタンは対象範囲へフォーカスしますが、
+Minato CityGMLから地形・LOD1・MuJoCo資産を生成するまでは下段5km表示を維持します。
+
 10機fixture:
 
 ```text

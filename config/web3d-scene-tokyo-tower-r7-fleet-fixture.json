@@ -1,0 +1,113 @@
+{
+  "version": "1.0",
+  "format": "compact",
+  "environmentMode": "physics",
+  "initialEnvironmentScope": "wide",
+  "environmentScopes": {
+    "wide": {
+      "camera": {
+        "position": [-1200.0, 900.0, 7600.0],
+        "targetPositionRos": [0.0, 0.0, 40.0],
+        "far": 18000,
+        "minPolarAngleDeg": 1,
+        "maxPolarAngleDeg": 88,
+        "minDistanceM": 100,
+        "enablePan": false
+      },
+      "fog": { "near": 6500, "far": 18000 }
+    }
+  },
+  "environments": [
+    {
+      "name": "tokyo-tower-wide-5km-plateau-lod1",
+      "type": "plateau-3dtiles",
+      "modes": ["physics", "visual"],
+      "scopes": ["wide"],
+      "origin": { "latitude": 35.658581, "longitude": 139.745433, "heightM": 42.0 },
+      "verticalOffsetM": 0.5,
+      "verticalReference": {
+        "tiles": "WGS84 ellipsoidal height",
+        "simulation": "provisional local height; 600m DEM baseline pending",
+        "localOriginEllipsoidalHeightM": 42.0,
+        "terrainClearanceM": 0.5
+      },
+      "errorTarget": 24,
+      "clipSizeM": 5000,
+      "clipCenter": { "latitude": 35.658581, "longitude": 139.745433, "heightM": 42.0 },
+      "cacheMaxSize": 320,
+      "cacheMinSize": 240,
+      "downloadJobsPerSource": 2,
+      "preload": { "enabled": true, "resolution": 1600, "marginM": 100, "heightM": 7000 },
+      "dracoDecoderPath": "https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/gltf/",
+      "dracoWorkerLimit": 2,
+      "ground": { "enabled": false },
+      "sources": [
+        { "id": "13103-minato", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13103-bldg-lod1-latest/tileset.json" },
+        { "id": "13101-chiyoda", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13101-bldg-lod1-latest/tileset.json" },
+        { "id": "13102-chuo", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13102-bldg-lod1-latest/tileset.json" },
+        { "id": "13104-shinjuku", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13104-bldg-lod1-latest/tileset.json" },
+        { "id": "13109-shinagawa", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13109-bldg-lod1-latest/tileset.json" },
+        { "id": "13113-shibuya", "url": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/13113-bldg-lod1-latest/tileset.json" }
+      ]
+    }
+  ],
+  "main_camera": {
+    "fov": 55,
+    "near": 0.5,
+    "far": 18000,
+    "initialMode": "fixed",
+    "followDistance": 70.0,
+    "followLerpPos": 8.0,
+    "followLerpTarget": 10.0,
+    "followToggleKey": "c",
+    "position": [-1200.0, 900.0, 7600.0],
+    "targetPositionRos": [0.0, 0.0, 40.0]
+  },
+  "defaultDroneProfile": "origin-01",
+  "droneProfiles": {
+    "origin-01": {
+      "label": "Origin-01 (bundled)",
+      "droneTypesPath": "../third_party/hakoniwa-web3d-drone/config/drone_types-origin-01.json?v=phase-e-20260813-14",
+      "droneType": "origin_01",
+      "note": "Imported from hakoniwa-godot-drone-courses_4_1 under the MIT license."
+    },
+    "base": {
+      "label": "Base quadrotor (bundled)",
+      "droneTypesPath": "../third_party/hakoniwa-web3d-drone/config/drone_types-quadrotor_base.json",
+      "droneType": "quadrotor_base"
+    }
+  },
+  "droneTypesPath": "../third_party/hakoniwa-web3d-drone/config/drone_types-origin-01.json?v=phase-e-20260813-14",
+  "drones": [
+    { "name": "Drone-A", "type": "quadrotor_base", "pos": [0,0,24], "hpr": [0,0,0] },
+    { "name": "Drone-B", "type": "quadrotor_base", "pos": [35,25,32], "hpr": [0,0,45] },
+    { "name": "Drone-C", "type": "quadrotor_base", "pos": [-42,18,28], "hpr": [0,0,-35] },
+    { "name": "Drone-D", "type": "quadrotor_base", "pos": [-30,-30,26], "hpr": [0,0,90] },
+    { "name": "Drone-E", "type": "quadrotor_base", "pos": [45,-20,30], "hpr": [0,0,-90] },
+    { "name": "Drone-F", "type": "quadrotor_base", "pos": [60,40,35], "hpr": [0,0,180] },
+    { "name": "Drone-G", "type": "quadrotor_base", "pos": [-55,50,29], "hpr": [0,0,120] },
+    { "name": "Drone-H", "type": "quadrotor_base", "pos": [20,-60,31], "hpr": [0,0,-60] },
+    { "name": "Drone-I", "type": "quadrotor_base", "pos": [-70,-40,27], "hpr": [0,0,200] },
+    { "name": "Drone-J", "type": "quadrotor_base", "pos": [80,-10,34], "hpr": [0,0,-120] },
+    { "name": "Drone-K", "type": "quadrotor_base", "pos": [90,20,31], "hpr": [0,0,20] },
+    { "name": "Drone-L", "type": "quadrotor_base", "pos": [-85,22,33], "hpr": [0,0,40] },
+    { "name": "Drone-M", "type": "quadrotor_base", "pos": [15,88,29], "hpr": [0,0,60] },
+    { "name": "Drone-N", "type": "quadrotor_base", "pos": [-18,-92,36], "hpr": [0,0,80] },
+    { "name": "Drone-O", "type": "quadrotor_base", "pos": [105,-42,38], "hpr": [0,0,100] },
+    { "name": "Drone-P", "type": "quadrotor_base", "pos": [-110,45,34], "hpr": [0,0,120] },
+    { "name": "Drone-Q", "type": "quadrotor_base", "pos": [75,75,41], "hpr": [0,0,140] },
+    { "name": "Drone-R", "type": "quadrotor_base", "pos": [-78,-78,32], "hpr": [0,0,160] },
+    { "name": "Drone-S", "type": "quadrotor_base", "pos": [125,5,37], "hpr": [0,0,180] },
+    { "name": "Drone-T", "type": "quadrotor_base", "pos": [-128,-8,35], "hpr": [0,0,200] },
+    { "name": "Drone-U", "type": "quadrotor_base", "pos": [42,120,39], "hpr": [0,0,220] },
+    { "name": "Drone-V", "type": "quadrotor_base", "pos": [-45,-125,30], "hpr": [0,0,240] },
+    { "name": "Drone-W", "type": "quadrotor_base", "pos": [135,-70,43], "hpr": [0,0,260] },
+    { "name": "Drone-X", "type": "quadrotor_base", "pos": [-138,72,40], "hpr": [0,0,280] },
+    { "name": "Drone-Y", "type": "quadrotor_base", "pos": [12,145,34], "hpr": [0,0,300] },
+    { "name": "Drone-Z", "type": "quadrotor_base", "pos": [-12,-148,38], "hpr": [0,0,320] },
+    { "name": "Drone-AA", "type": "quadrotor_base", "pos": [155,48,42], "hpr": [0,0,340] },
+    { "name": "Drone-AB", "type": "quadrotor_base", "pos": [-158,-52,36], "hpr": [0,0,10] },
+    { "name": "Drone-AC", "type": "quadrotor_base", "pos": [95,-145,44], "hpr": [0,0,30] },
+    { "name": "Drone-AD", "type": "quadrotor_base", "pos": [-98,148,41], "hpr": [0,0,50] }
+  ]
+}

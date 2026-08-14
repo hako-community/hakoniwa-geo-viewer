@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "tokyo-tower",
+  "displayName": "Tokyo Tower PLATEAU 5km",
+  "coordinateContract": {
+    "horizontalCrs": "EPSG:6677",
+    "frame": "mujoco_x_north_y_minus_east_z_up",
+    "verticalDatum": "orthometric_height",
+    "threeModelHeight": "modelHeightsM",
+    "mujocoModelHeight": "modelHeightsM",
+    "maprayAbsoluteHeight": "modelHeightsM + zBaselineM"
+  },
+  "paths": {
+    "geoOrigin": "../geo-origin-tokyo-tower.json",
+    "mapray": "../mapray-tokyo-tower.json",
+    "operationsLayer": "../operations/tokyo-tower-wide-area-5km.geojson"
+  },
+  "coverage": {
+    "wideArea": {
+      "label": "5km overview",
+      "widthM": 5000,
+      "heightM": 5000,
+      "dataStatus": "ready",
+      "display": "Mapray standard map/DEM + public PLATEAU B3D; Three.js public PLATEAU LOD1"
+    },
+    "localDetail": {
+      "label": "600m Tokyo Tower area",
+      "widthM": 600,
+      "heightM": 600,
+      "selectionHalfExtentM": 320,
+      "dataStatus": "planned",
+      "display": "Minato PLATEAU terrain/LOD1/MuJoCo assets are not generated yet"
+    }
+  },
+  "web3d": {
+    "root": "/third_party/hakoniwa-web3d-drone",
+    "viewerConfigName": "viewer-config-legacy.json",
+    "sceneConfigPath": "../web3d-scene-tokyo-tower.json",
+    "fixtureSceneConfigPath": "../web3d-scene-tokyo-tower-r7-fleet-fixture.json"
+  }
+}
