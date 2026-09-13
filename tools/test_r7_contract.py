@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+RUNTIME_ROOT = ROOT.parent / "hakoniwa-mapray-demo"
 
 
 class PhaseR7ContractTest(unittest.TestCase):
@@ -24,10 +25,10 @@ class PhaseR7ContractTest(unittest.TestCase):
         self.assertGreaterEqual(len(fixture["drones"]), 5)
 
     def test_r7_benchmark_script_exists(self) -> None:
-        script = (ROOT.parent / "scripts/windows/test_phase_r7_fleet_benchmark.ps1")
+        script = RUNTIME_ROOT / "scripts/windows/test_phase_r7_fleet_benchmark.ps1"
         self.assertTrue(script.exists(), "Phase R7 benchmark script must exist")
         actual_script = (
-            ROOT.parent / "scripts/windows/run_mapray_operations_benchmark.ps1"
+            RUNTIME_ROOT / "scripts/windows/run_mapray_operations_benchmark.ps1"
         )
         self.assertTrue(actual_script.exists(), "Actual browser benchmark script must exist")
 
@@ -52,10 +53,10 @@ class PhaseR7ContractTest(unittest.TestCase):
     def test_phase_b_performance_monitor_is_actual_measurement(self) -> None:
         monitor = self.read("src/client/src/performance_monitor.mjs")
         legacy = (
-            ROOT.parent / "scripts/windows/test_phase_r7_fleet_benchmark.ps1"
+            RUNTIME_ROOT / "scripts/windows/test_phase_r7_fleet_benchmark.ps1"
         ).read_text(encoding="utf-8")
         launcher = (
-            ROOT.parent / "scripts/windows/run_mapray_operations_benchmark.ps1"
+            RUNTIME_ROOT / "scripts/windows/run_mapray_operations_benchmark.ps1"
         ).read_text(encoding="utf-8")
         self.assertIn("actual-browser", monitor)
         self.assertIn("estimated: false", monitor)

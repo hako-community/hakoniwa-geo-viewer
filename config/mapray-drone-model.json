@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "0.9.6",
+  "airframeDatasetId": "6301326065532928",
+  "propellerDatasetId": "5093940311097344",
+  "position": {
+    "longitude": 139.745433,
+    "latitude": 35.658581,
+    "altitude": 180
+  },
+  "camera": {
+    "longitude": 139.7446,
+    "latitude": 35.6579,
+    "height": 260,
+    "lookAtHeight": 180,
+    "minZoomDistanceMeters": 3
+  },
+  "airframeHeadingDeg": 0,
+  "orientationOffsetDeg": { "heading": 0, "tilt": 0, "roll": 0 },
+  "airframeScale": [0.6, 0.6, 0.6],
+  "propellerScale": [0.6, 0.6, 0.6],
+  "visualScale": 1,
+  "fixtureRotorSpeedsRadPerSec": [60, 60, 60, 60],
+  "visualAngularSpeedLimitRadPerSec": 12,
+  "missingRotorSpeedMode": "fixture",
+  "rotors": [
+    { "offsetRosM": [0.5091168880, -0.5091168880, 0.3108960271], "spinDirection": "cw" },
+    { "offsetRosM": [-0.5091168880, 0.5091168880, 0.3108960271], "spinDirection": "ccw" },
+    { "offsetRosM": [0.5091168880, 0.5091168880, 0.3108960271], "spinDirection": "cw" },
+    { "offsetRosM": [-0.5091168880, -0.5091168880, 0.3108960271], "spinDirection": "ccw" }
+  ]
+}

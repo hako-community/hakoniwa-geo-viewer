@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+RUNTIME_ROOT = ROOT.parent / "hakoniwa-mapray-demo"
 
 
 class PhaseR6ContractTest(unittest.TestCase):
@@ -25,7 +26,7 @@ class PhaseR6ContractTest(unittest.TestCase):
         self.assertIn("selectIncident", ui)
 
     def test_e2e_incident_script_exists(self) -> None:
-        script = (ROOT.parent / "scripts/windows/test_phase_r6_incident_e2e.ps1")
+        script = RUNTIME_ROOT / "scripts/windows/test_phase_r6_incident_e2e.ps1"
         self.assertTrue(script.exists(), "Phase R6 E2E script must exist")
 
     def test_mapray_and_threejs_incident_selection_sync(self) -> None:

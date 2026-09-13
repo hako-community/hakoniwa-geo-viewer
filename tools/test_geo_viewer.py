@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import json
 import pathlib
 import unittest
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+RUNTIME_ROOT = ROOT.parent / "hakoniwa-mapray-demo"
 
 
 class GeoViewerContractTest(unittest.TestCase):
@@ -120,11 +122,81 @@ class GeoViewerContractTest(unittest.TestCase):
         self.assertIn("history.replaceState", ui)
         self.assertNotIn("YOUR_MAPRAY_API_KEY", config)
 
+    def test_mapray_096_model_phase0_contract(self) -> None:
+        html = self.read("src/client/phase0-mapray-model.html")
+        formal_html = self.read("src/client/mapray-drone-model.html")
+        page = self.read("src/client/src/mapray_drone_model_demo.js")
+        model_layer = self.read("src/client/src/mapray_drone_model_layer.mjs")
+        fleet_layer = self.read("src/client/src/mapray_drone_fleet_layer.mjs")
+        compatibility_entry = self.read("src/client/src/phase0_mapray_model_spike.js")
+        logic = self.read("src/client/src/mapray_model_phase0.mjs")
+        legacy_config = json.loads(self.read("config/mapray-model-phase0.json"))
+        config = self.read("config/mapray-drone-model.json")
+        config_data = json.loads(config)
+        self.assertIn("mapray-js/v0.9.6/mapray.min.js", html)
+        self.assertIn("mapray-js/v0.9.6/mapray.min.js", formal_html)
+        self.assertNotIn("mapray-js/v0.10", html)
+        self.assertNotIn("three", formal_html.lower())
+        self.assertIn("mapray_drone_model_demo.js", compatibility_entry)
+        self.assertIn("CloudApiV2", page)
+        self.assertIn("new MaprayDroneFleetLayer", page)
+        self.assertIn("class MaprayDroneModelLayer", model_layer)
+        self.assertIn("get3DDatasetAsResource", model_layer)
+        self.assertIn("new this.mapray.SceneLoader", model_layer)
+        self.assertIn("_createFallbackPin", model_layer)
+        self.assertIn("dispose()", model_layer)
+        self.assertIn("handlePick", model_layer)
+        self.assertIn("updateDroneState", model_layer)
+        self.assertIn("bindFlightStateStore", model_layer)
+        self.assertIn("composeRotorMaprayOrientation", model_layer)
+        self.assertIn('id="toggle-rotor-animation"', formal_html)
+        self.assertIn('id="toggle-model-follow"', formal_html)
+        self.assertIn('id="fixture-model-pose"', formal_html)
+        self.assertIn('id="mapray-drone-diagnostics"', formal_html)
+        self.assertIn("pauseRotors", page)
+        self.assertIn("rotorPaused", page)
+        self.assertIn("droneRender", page)
+        self.assertIn("browserPerformance", page)
+        self.assertIn("loadWindowTransferBytes", page)
+        self.assertIn("cloudDatasetRequestCount", model_layer)
+        self.assertIn("renderMode", model_layer)
+        self.assertIn("loadDurationMs", model_layer)
+        self.assertIn("averageUpdateMs", model_layer)
+        self.assertIn("class MaprayDroneFleetLayer", fleet_layer)
+        self.assertIn("cloudResourceCreateCount", fleet_layer)
+        self.assertIn("pruneStale", fleet_layer)
+        self.assertIn("removeDrone", fleet_layer)
+        self.assertIn('id="fixture-fleet-size"', formal_html)
+        self.assertIn("advanceRotorPhases", logic)
+        self.assertIn("rosOffsetToGeoPoint", logic)
+        self.assertEqual(config_data["airframeDatasetId"], "6301326065532928")
+        self.assertEqual(config_data["propellerDatasetId"], "5093940311097344")
+        self.assertEqual(config_data["airframeHeadingDeg"], 0)
+        self.assertEqual(
+            config_data["orientationOffsetDeg"],
+            {"heading": 0, "tilt": 0, "roll": 0},
+        )
+        self.assertEqual(config_data["propellerScale"], [0.6, 0.6, 0.6])
+        expected_offsets = (
+            (0.5091168880, -0.5091168880, 0.3108960271),
+            (-0.5091168880, 0.5091168880, 0.3108960271),
+            (0.5091168880, 0.5091168880, 0.3108960271),
+            (-0.5091168880, -0.5091168880, 0.3108960271),
+        )
+        for rotor, expected_offset in zip(config_data["rotors"], expected_offsets):
+            for actual, expected in zip(rotor["offsetRosM"], expected_offset):
+                self.assertAlmostEqual(actual, expected, places=9)
+        self.assertGreaterEqual(config_data["camera"]["minZoomDistanceMeters"], 1)
+        self.assertEqual(legacy_config, config_data)
+        self.assertNotIn("MAPRAY_API_KEY", config)
+
     def test_collision_event_contract(self) -> None:
         html = self.read("src/client/index.html")
         ui = self.read("src/client/src/ui.js")
         tracker = self.read("src/client/src/collision_events.mjs")
-        bridge = self.read("../scripts/windows/pdu_web_bridge.py")
+        bridge = (RUNTIME_ROOT / "scripts/windows/pdu_web_bridge.py").read_text(
+            encoding="utf-8"
+        )
         self.assertIn('id="collision-panel"', html)
         self.assertIn("CollisionEventTracker", ui)
         self.assertIn("maprayLayer?.addCollision", ui)

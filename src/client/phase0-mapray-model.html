@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="mapray-model-config" content="../../../config/mapray-drone-model.json">
+  <title>Mapray 0.9.6 ModelEntity Phase 0</title>
+  <link rel="icon" href="data:,">
+  <script src="https://resource.mapray.com/mapray-js/v0.9.6/mapray.min.js"></script>
+  <script src="https://resource.mapray.com/ui/v0.9.6/maprayui.min.js"></script>
+  <link rel="stylesheet" href="https://resource.mapray.com/styles/v1/mapray.css">
+  <style>
+    html, body, #mapray-container { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    #mapray-model-panel {
+      position: absolute; z-index: 1000; top: 12px; left: 12px; max-width: 520px;
+      padding: 12px 14px; border: 1px solid #5fd5ff; border-radius: 6px;
+      color: #eefaff; background: rgba(3, 15, 28, 0.9); font: 13px/1.45 sans-serif;
+      white-space: pre-wrap;
+    }
+    #mapray-model-panel[data-state="ready"] { border-color: #50e3a4; }
+    #mapray-model-panel[data-state="blocked"], #mapray-model-panel[data-state="error"] { border-color: #ffb454; }
+    #mapray-model-controls { position: absolute; z-index: 1000; top: 12px; right: 12px; }
+    #mapray-model-controls { display: flex; gap: 8px; }
+    #reset-model-view, #toggle-rotor-animation {
+      padding: 9px 12px; border: 1px solid #5fd5ff; border-radius: 5px;
+      color: #eefaff; background: rgba(3, 15, 28, 0.9); cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="mapray-container"></div>
+  <div id="mapray-model-panel" data-state="loading">Mapray 0.9.6 Phase 0を初期化中...</div>
+  <div id="mapray-model-controls">
+    <button id="toggle-rotor-animation" type="button">回転を停止（基準角）</button>
+    <button id="reset-model-view" type="button">初期視点へ戻る</button>
+  </div>
+  <script type="module" src="./src/phase0_mapray_model_spike.js?v=phase3-20260912-2"></script>
+</body>
+</html>

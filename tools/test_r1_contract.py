@@ -6,6 +6,9 @@ from pathlib import Path
 from scenario_contract import ROOT, load_json, sha256, validate_runtime_assets
 
 
+RUNTIME_ROOT = ROOT.parent / "hakoniwa-mapray-demo"
+
+
 class PhaseR1ContractTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -31,15 +34,21 @@ class PhaseR1ContractTest(unittest.TestCase):
                 self.assertTrue(target.is_relative_to(ROOT))
                 self.assertTrue(target.is_file(), target)
 
-    def test_manifest_hashes_match_deployed_and_source_files(self) -> None:
+    def test_manifest_hashes_match_deployed_and_available_source_files(self) -> None:
         manifest = self.runtime["manifest"]
         for item in manifest["files"]:
             with self.subTest(path=item["path"]):
                 deployed = ROOT / "runtime-assets/shibuya" / item["path"]
-                source = ROOT.parent / item["sourceRelativePath"]
+                source_relative = Path(item["sourceRelativePath"])
+                self.assertFalse(source_relative.is_absolute())
+                self.assertNotIn("..", source_relative.parts)
+                source = RUNTIME_ROOT / source_relative
                 self.assertEqual(item["sha256"], sha256(deployed))
-                self.assertTrue(source.is_file(), source)
-                self.assertEqual(item["sha256"], sha256(source))
+                # Generated source copies are operational artifacts and are not
+                # required in a clean clone. When present, they must still be
+                # byte-identical to the deployed, manifest-verified asset.
+                if source.is_file():
+                    self.assertEqual(item["sha256"], sha256(source))
 
     def test_terrain_grid_and_vertical_baseline_contract(self) -> None:
         grid = self.runtime["grid"]

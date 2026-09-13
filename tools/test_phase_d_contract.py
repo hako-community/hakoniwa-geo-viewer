@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE = ROOT.parent
+RUNTIME_ROOT = WORKSPACE / "hakoniwa-mapray-demo"
 
 
 class PhaseDContractTest(unittest.TestCase):
@@ -51,7 +52,7 @@ class PhaseDContractTest(unittest.TestCase):
         html = (ROOT / "src/client/index.html").read_text(encoding="utf-8")
         ui = (ROOT / "src/client/src/ui.js").read_text(encoding="utf-8")
         hako = (ROOT / "tools/hako.py").read_text(encoding="utf-8")
-        launcher = WORKSPACE / "scripts/windows/start_phase_d_evaluation.ps1"
+        launcher = RUNTIME_ROOT / "scripts/windows/start_phase_d_evaluation.ps1"
         for marker in (
             "phase-d-evaluation-panel",
             "phase-d-answer-drone",

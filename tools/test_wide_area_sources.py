@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE = ROOT.parent
+RUNTIME_ROOT = WORKSPACE / "hakoniwa-mapray-demo"
 
 
 class WideAreaSourceContractTest(unittest.TestCase):
@@ -24,7 +25,7 @@ class WideAreaSourceContractTest(unittest.TestCase):
     def test_source_catalog_preserves_local_assets_and_defers_conversion(self) -> None:
         catalog = json.loads(
             (
-                WORKSPACE
+                RUNTIME_ROOT
                 / "runtime/windows/scenarios/shibuya/wide-area-source-catalog.json"
             ).read_text(encoding="utf-8")
         )
