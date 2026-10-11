@@ -63,6 +63,7 @@ function createHarness({ failAtLoad = -1 } = {}) {
 
 const config = {
   position: { longitude: 139.745433, latitude: 35.658581, altitude: 180 },
+  camera: { longitude: 139.7446, latitude: 35.6579, height: 260, lookAtHeight: 180 },
   airframeHeadingDeg: 0,
   airframeScale: [0.6, 0.6, 0.6],
   propellerScale: [0.6, 0.6, 0.6],
