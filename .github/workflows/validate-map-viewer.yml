@@ -13,12 +13,12 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 
       - name: Checkout pinned demo workspace contracts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: hako-community/hakoniwa-mapray-demo
           ref: 35ea3a40bb384782eb750c54bbe142505a0179d9
@@ -38,7 +38,7 @@ jobs:
           cp runtime-assets/shibuya/city-pipeline-manifest.json "$generated/manifest.json"
           cp runtime-assets/shibuya/terrain-source-manifest.json "$generated/terrain-manifest.json"
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
